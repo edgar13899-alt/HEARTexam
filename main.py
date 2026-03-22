@@ -111,28 +111,31 @@ elif st.session_state.fase == "examen":
         else:
             st.session_state.respuesta_usuario = respuesta
             
-            with st.spinner("El examinador de la IA está evaluando tu respuesta..."):
+           with st.spinner("El examinador de la IA está evaluando tu respuesta..."):
                 prompt_evaluacion = f"Escenario: {st.session_state.escenario}\n\nRespuesta del Gerente: {respuesta}"
                 
                 eval_response = client.models.generate_content(
-                    model='gemini-2.5-flash',
+                    model='gemini-2.5-flash', # Changed to 2.5-flash to prevent free-tier timeouts
                     contents=prompt_evaluacion,
                     config=types.GenerateContentConfig(
                         system_instruction=evaluador_instrucciones,
-                        temperature=0.1 
+                        temperature=0.1,
+                        response_mime_type="application/json" # This locks the AI into raw data mode!
                     )
                 )
                 
+                # Extraer el JSON de la respuesta de la IA
                 try:
-                    match = re.search(r'\{.*\}', eval_response.text, re.DOTALL)
-                    json_str = match.group(0) if match else eval_response.text
-                    resultado_json = json.loads(json_str)
+                    # Now we can read it directly without complex text searching
+                    resultado_json = json.loads(eval_response.text)
                     st.session_state.resultado = resultado_json
                     st.session_state.fase = "resultados"
                     st.rerun()
-                except:
-                    st.error("Hubo un error al procesar tu calificación. Por favor, avísale al administrador.")
-
+                except Exception as e:
+                    # If it fails again, this will print the EXACT reason on the screen so we can fix it
+                    st.error(f"Error técnico de lectura: {e}")
+                    st.info(f"Respuesta cruda de la IA: {eval_response.text}")
+              
 # FASE 3: Resultados y Registro en Base de Datos
 elif st.session_state.fase == "resultados":
     calificacion = st.session_state.resultado.get("calificacion", 0)
