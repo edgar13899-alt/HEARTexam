@@ -115,7 +115,7 @@ elif st.session_state.fase == "examen":
                 prompt_evaluacion = f"Escenario: {st.session_state.escenario}\n\nRespuesta del Gerente: {respuesta}"
                 
                 eval_response = client.models.generate_content(
-                    model='gemini-3.0-pro',
+                    model='gemini-2.5-flash',
                     contents=prompt_evaluacion,
                     config=types.GenerateContentConfig(
                         system_instruction=evaluador_instrucciones,
