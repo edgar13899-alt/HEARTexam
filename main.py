@@ -97,7 +97,6 @@ if st.session_state.fase == "login":
         else:
             st.session_state.nombre = nombre_input
             
-            # Gira la ruleta para el Escenario 1
             depto1 = random.choice(DEPARTAMENTOS)
             problema1 = random.choice(PROBLEMAS)
             prompt_aleatorio = f"Genera el escenario número 1 de dificultad {DIFICULTAD_DEL_EXAMEN}. El escenario DEBE ocurrir en {depto1} y el problema del cliente DEBE ser sobre {problema1}."
@@ -112,7 +111,7 @@ if st.session_state.fase == "login":
                 st.session_state.fase = "examen"
                 st.rerun()
 
-# FASE 2: Tomar el Examen (Bucle de 2 preguntas)
+# FASE 2: Tomar el Examen
 elif st.session_state.fase == "examen":
     st.write(f"👤 **Gerente:** {st.session_state.nombre} | 📝 **Escenario {st.session_state.numero_actual} de 2**")
     st.divider()
@@ -154,7 +153,6 @@ elif st.session_state.fase == "examen":
                     if st.session_state.numero_actual < 2:
                         st.session_state.numero_actual += 1
                         
-                        # Gira la ruleta para el Escenario 2
                         depto2 = random.choice(DEPARTAMENTOS)
                         problema2 = random.choice(PROBLEMAS)
                         prompt_gen_2 = f"Genera OTRO escenario de dificultad {DIFICULTAD_DEL_EXAMEN}. DEBE ocurrir en {depto2} y el problema DEBE ser sobre {problema2}. Tiene que ser completamente diferente a este escenario anterior: '{st.session_state.escenario_actual}'"
@@ -185,4 +183,23 @@ elif st.session_state.fase == "resultados":
         try:
             cred_dict = json.loads(st.secrets["google_credentials"])
             scopes = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
-            creds =
+            creds = Credentials.from_service_account_info(cred_dict, scopes=scopes)
+            gclient = gspread.authorize(creds)
+            
+            sheet = gclient.open_by_url(URL_DE_TU_HOJA).sheet1
+            sheet.append_row([st.session_state.nombre, DIFICULTAD_DEL_EXAMEN, calificacion_final, fecha])
+            
+            st.session_state.guardado = True
+            st.toast("✅ Calificación final registrada en el sistema.")
+        except Exception as e:
+            st.error(f"Error de base de datos: {e}")
+
+    if calificacion_final >= 85:
+        st.balloons()
+        st.success("¡EXAMEN APROBADO!")
+    else:
+        st.error("EXAMEN REPROBADO. Necesitas un promedio de 85% para pasar.")
+    
+    st.markdown(f"""
+    <div style="padding: 20px; border: 2px solid {'#28a745' if calificacion_final >= 85 else '#dc3545'}; border-radius: 10px; background-color: {'#eafaf1' if calificacion_final >= 85 else '#fdeded'}; color: black;">
+        <h2 style="text-align: center; margin-bottom: 0;">Boleta Oficial La Vaquita</h2>
