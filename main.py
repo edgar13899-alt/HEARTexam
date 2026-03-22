@@ -12,7 +12,7 @@ https://docs.google.com/spreadsheets/d/1XI1QnWKtp2BQUKWQqjsWRThKd6axbEHjfnfqv3AK
 # ==========================================
 # ⚙️ CONFIGURACIÓN DEL ADMINISTRADOR
 # ==========================================
-DIFICULTAD_DEL_EXAMEN = "Difícil" 
+DIFICULTAD_DEL_EXAMEN = "Fácil" 
 # Pega el URL de tu Google Sheet de calificaciones aquí adentro de las comillas:
 URL_DE_TU_HOJA = "https://docs.google.com/spreadsheets/d/your-link-here/edit"
 
