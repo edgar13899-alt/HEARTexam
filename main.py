@@ -11,7 +11,7 @@ from google.oauth2.service_account import Credentials
 # ==========================================
 # ⚙️ CONFIGURACIÓN DEL ADMINISTRADOR
 # ==========================================
-DIFICULTAD_DEL_EXAMEN = "Difícil" 
+DIFICULTAD_DEL_EXAMEN = "Fácil" 
 URL_DE_TU_HOJA = "https://docs.google.com/spreadsheets/d/1XI1QnWKtp2BQUKWQqjsWRThKd6axbEHjfnfqv3AKTNY/edit?gid=0#gid=0"
 
 # --- CONFIGURACIÓN DE LA PÁGINA ---
