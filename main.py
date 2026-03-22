@@ -5,12 +5,16 @@ import os
 import json
 import re
 from datetime import datetime
+import gspread
+from google.oauth2.service_account import Credentials
 
+https://docs.google.com/spreadsheets/d/1XI1QnWKtp2BQUKWQqjsWRThKd6axbEHjfnfqv3AKTNY/edit?gid=0#gid=0
 # ==========================================
 # ⚙️ CONFIGURACIÓN DEL ADMINISTRADOR
 # ==========================================
-# Change this word to control the test difficulty for everyone: "Fácil", "Medio", or "Difícil"
 DIFICULTAD_DEL_EXAMEN = "Difícil" 
+# Pega el URL de tu Google Sheet de calificaciones aquí adentro de las comillas:
+URL_DE_TU_HOJA = "https://docs.google.com/spreadsheets/d/your-link-here/edit"
 
 # --- CONFIGURACIÓN DE LA PÁGINA ---
 st.set_page_config(page_title="Examen HEART - La Vaquita", page_icon="📝", layout="centered")
@@ -33,7 +37,6 @@ if not api_key:
 client = genai.Client(api_key=api_key)
 
 # --- INSTRUCCIONES DEL SISTEMA ---
-# Ensuring the AI knows the correct departments (no cremeria)
 generador_instrucciones = f"""
 Eres un generador de exámenes para gerentes de La Vaquita Meat Market. 
 Departamentos: taquería, carnicería, panadería, pastelería, paletería, frutas/verduras y abarrotes en general.
@@ -81,7 +84,6 @@ if st.session_state.fase == "login":
         else:
             st.session_state.nombre = nombre_input
             
-            # Generar el escenario único
             with st.spinner("Generando tu examen..."):
                 response = client.models.generate_content(
                     model='gemini-2.5-flash',
@@ -117,11 +119,10 @@ elif st.session_state.fase == "examen":
                     contents=prompt_evaluacion,
                     config=types.GenerateContentConfig(
                         system_instruction=evaluador_instrucciones,
-                        temperature=0.1 # Keep grading strict and consistent
+                        temperature=0.1 
                     )
                 )
                 
-                # Extraer el JSON de la respuesta de la IA
                 try:
                     match = re.search(r'\{.*\}', eval_response.text, re.DOTALL)
                     json_str = match.group(0) if match else eval_response.text
@@ -132,19 +133,37 @@ elif st.session_state.fase == "examen":
                 except:
                     st.error("Hubo un error al procesar tu calificación. Por favor, avísale al administrador.")
 
-# FASE 3: Resultados y Boleta de Calificaciones
+# FASE 3: Resultados y Registro en Base de Datos
 elif st.session_state.fase == "resultados":
     calificacion = st.session_state.resultado.get("calificacion", 0)
     retro = st.session_state.resultado.get("retroalimentacion", "")
     fecha = datetime.now().strftime("%d/%m/%Y %H:%M")
     
+    # === CONEXIÓN A GOOGLE SHEETS (Guardar solo una vez) ===
+    if "guardado" not in st.session_state:
+        try:
+            # Cargar la llave secreta
+            cred_dict = json.loads(st.secrets["google_credentials"])
+            scopes = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
+            creds = Credentials.from_service_account_info(cred_dict, scopes=scopes)
+            gclient = gspread.authorize(creds)
+            
+            # Conectar a la hoja y agregar la fila
+            sheet = gclient.open_by_url(URL_DE_TU_HOJA).sheet1
+            sheet.append_row([st.session_state.nombre, DIFICULTAD_DEL_EXAMEN, calificacion, fecha])
+            
+            st.session_state.guardado = True
+            st.toast("✅ Calificación registrada en el sistema del gerente.")
+        except Exception as e:
+            st.error(f"Error de base de datos: {e}")
+    # ========================================================
+
     if calificacion >= 85:
         st.balloons()
         st.success("¡EXAMEN APROBADO!")
     else:
         st.error("EXAMEN REPROBADO. Necesitas un 85% para pasar.")
     
-    # Tarjeta de reporte visual para tomar captura de pantalla
     st.markdown(f"""
     <div style="padding: 20px; border: 2px solid {'#28a745' if calificacion >= 85 else '#dc3545'}; border-radius: 10px; background-color: {'#eafaf1' if calificacion >= 85 else '#fdeded'}; color: black;">
         <h2 style="text-align: center; margin-bottom: 0;">Boleta Oficial La Vaquita</h2>
@@ -160,8 +179,6 @@ elif st.session_state.fase == "resultados":
     st.subheader("🔍 Análisis del Examinador:")
     st.info(retro)
     
-    st.warning("📸 **INSTRUCCIÓN:** Toma una captura de pantalla de tu boleta de calificaciones y envíasela al dueño de la tienda.")
-    
-    if st.button("Volver al Inicio (Reiniciar)"):
+    if st.button("Volver al Inicio"):
         st.session_state.clear()
         st.rerun()
