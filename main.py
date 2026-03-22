@@ -8,13 +8,11 @@ from datetime import datetime
 import gspread
 from google.oauth2.service_account import Credentials
 
-URL_DE_TU_HOJA ="https://docs.google.com/spreadsheets/d/1XI1QnWKtp2BQUKWQqjsWRThKd6axbEHjfnfqv3AKTNY/edit?gid=0#gid=0"
 # ==========================================
 # ⚙️ CONFIGURACIÓN DEL ADMINISTRADOR
 # ==========================================
-DIFICULTAD_DEL_EXAMEN = "Fácil" 
-# Pega el URL de tu Google Sheet de calificaciones aquí adentro de las comillas:
-URL_DE_TU_HOJA = "https://docs.google.com/spreadsheets/d/your-link-here/edit"
+DIFICULTAD_DEL_EXAMEN = "Difícil" 
+URL_DE_TU_HOJA = "https://docs.google.com/spreadsheets/d/1XI1QnWKtp2BQUKWQqjsWRThKd6axbEHjfnfqv3AKTNY/edit?gid=0#gid=0"
 
 # --- CONFIGURACIÓN DE LA PÁGINA ---
 st.set_page_config(page_title="Examen HEART - La Vaquita", page_icon="📝", layout="centered")
@@ -111,47 +109,42 @@ elif st.session_state.fase == "examen":
         else:
             st.session_state.respuesta_usuario = respuesta
             
-           with st.spinner("El examinador de la IA está evaluando tu respuesta..."):
+            with st.spinner("El examinador de la IA está evaluando tu respuesta..."):
                 prompt_evaluacion = f"Escenario: {st.session_state.escenario}\n\nRespuesta del Gerente: {respuesta}"
                 
                 eval_response = client.models.generate_content(
-                    model='gemini-2.5-flash', # Changed to 2.5-flash to prevent free-tier timeouts
+                    model='gemini-2.5-flash',
                     contents=prompt_evaluacion,
                     config=types.GenerateContentConfig(
                         system_instruction=evaluador_instrucciones,
                         temperature=0.1,
-                        response_mime_type="application/json" # This locks the AI into raw data mode!
+                        response_mime_type="application/json"
                     )
                 )
                 
-                # Extraer el JSON de la respuesta de la IA
                 try:
-                    # Now we can read it directly without complex text searching
                     resultado_json = json.loads(eval_response.text)
                     st.session_state.resultado = resultado_json
                     st.session_state.fase = "resultados"
                     st.rerun()
                 except Exception as e:
-                    # If it fails again, this will print the EXACT reason on the screen so we can fix it
                     st.error(f"Error técnico de lectura: {e}")
                     st.info(f"Respuesta cruda de la IA: {eval_response.text}")
-              
+
 # FASE 3: Resultados y Registro en Base de Datos
 elif st.session_state.fase == "resultados":
     calificacion = st.session_state.resultado.get("calificacion", 0)
     retro = st.session_state.resultado.get("retroalimentacion", "")
     fecha = datetime.now().strftime("%d/%m/%Y %H:%M")
     
-    # === CONEXIÓN A GOOGLE SHEETS (Guardar solo una vez) ===
+    # === CONEXIÓN A GOOGLE SHEETS ===
     if "guardado" not in st.session_state:
         try:
-            # Cargar la llave secreta
             cred_dict = json.loads(st.secrets["google_credentials"])
             scopes = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
             creds = Credentials.from_service_account_info(cred_dict, scopes=scopes)
             gclient = gspread.authorize(creds)
             
-            # Conectar a la hoja y agregar la fila
             sheet = gclient.open_by_url(URL_DE_TU_HOJA).sheet1
             sheet.append_row([st.session_state.nombre, DIFICULTAD_DEL_EXAMEN, calificacion, fecha])
             
