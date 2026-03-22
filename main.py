@@ -11,7 +11,7 @@ from google.oauth2.service_account import Credentials
 # ==========================================
 # ⚙️ CONFIGURACIÓN DEL ADMINISTRADOR
 # ==========================================
-DIFICULTAD_DEL_EXAMEN = "Fácil" 
+DIFICULTAD_DEL_EXAMEN = "Difícil" 
 URL_DE_TU_HOJA = "https://docs.google.com/spreadsheets/d/1XI1QnWKtp2BQUKWQqjsWRThKd6axbEHjfnfqv3AKTNY/edit?gid=0#gid=0"
 
 # --- CONFIGURACIÓN DE LA PÁGINA ---
@@ -61,9 +61,9 @@ Debes devolver TU EVALUACIÓN EXCLUSIVAMENTE en el siguiente formato JSON, sin t
 if "fase" not in st.session_state:
     st.session_state.fase = "login"
     st.session_state.nombre = ""
-    st.session_state.escenario = ""
-    st.session_state.respuesta_usuario = ""
-    st.session_state.resultado = None
+    st.session_state.numero_actual = 1
+    st.session_state.escenario_actual = ""
+    st.session_state.evaluaciones = [] # Guardará las calificaciones de ambos escenarios
 
 # ==========================================
 # INTERFAZ DE LA APLICACIÓN
@@ -72,7 +72,7 @@ st.title("📝 Examen Oficial de Certificación HEART")
 
 # FASE 1: Registro
 if st.session_state.fase == "login":
-    st.write("Bienvenido al examen de resolución de clientes. El sistema generará un escenario único para ti.")
+    st.write("Bienvenido al examen de resolución de clientes. El sistema generará **2 escenarios únicos** para ti.")
     st.info(f"**Dificultad actual del examen:** {DIFICULTAD_DEL_EXAMEN}")
     
     nombre_input = st.text_input("Ingresa tu nombre completo para comenzar:")
@@ -82,35 +82,36 @@ if st.session_state.fase == "login":
         else:
             st.session_state.nombre = nombre_input
             
-            with st.spinner("Generando tu examen..."):
+            with st.spinner("Generando tu primer escenario..."):
                 response = client.models.generate_content(
                     model='gemini-2.5-flash',
-                    contents=f"Genera el escenario de dificultad {DIFICULTAD_DEL_EXAMEN}.",
+                    contents=f"Genera el escenario número 1 de dificultad {DIFICULTAD_DEL_EXAMEN}.",
                     config=types.GenerateContentConfig(system_instruction=generador_instrucciones)
                 )
-                st.session_state.escenario = response.text
+                st.session_state.escenario_actual = response.text
                 st.session_state.fase = "examen"
                 st.rerun()
 
-# FASE 2: Tomar el Examen
+# FASE 2: Tomar el Examen (Bucle de 2 preguntas)
 elif st.session_state.fase == "examen":
-    st.write(f"👤 **Gerente evaluado:** {st.session_state.nombre}")
+    st.write(f"👤 **Gerente:** {st.session_state.nombre} | 📝 **Escenario {st.session_state.numero_actual} de 2**")
     st.divider()
     
     st.subheader("🔴 Situación del Cliente:")
-    st.error(st.session_state.escenario)
+    st.error(st.session_state.escenario_actual)
     
     st.write("¿Cómo resolverías esta situación utilizando el método HEART? Escribe exactamente lo que dirías y harías.")
-    respuesta = st.text_area("Tu respuesta:", height=200)
     
-    if st.button("Enviar Respuesta para Calificación"):
+    # La clave (key) dinámica borra el cuadro de texto automáticamente para la pregunta 2
+    respuesta = st.text_area("Tu respuesta:", key=f"respuesta_{st.session_state.numero_actual}", height=200)
+    
+    if st.button("Enviar Respuesta"):
         if respuesta.strip() == "":
-            st.warning("No puedes enviar un examen en blanco.")
+            st.warning("No puedes enviar una respuesta en blanco.")
         else:
-            st.session_state.respuesta_usuario = respuesta
-            
             with st.spinner("El examinador de la IA está evaluando tu respuesta..."):
-                prompt_evaluacion = f"Escenario: {st.session_state.escenario}\n\nRespuesta del Gerente: {respuesta}"
+                # Evaluar la respuesta actual
+                prompt_evaluacion = f"Escenario: {st.session_state.escenario_actual}\n\nRespuesta del Gerente: {respuesta}"
                 
                 eval_response = client.models.generate_content(
                     model='gemini-2.5-flash',
@@ -124,17 +125,40 @@ elif st.session_state.fase == "examen":
                 
                 try:
                     resultado_json = json.loads(eval_response.text)
-                    st.session_state.resultado = resultado_json
-                    st.session_state.fase = "resultados"
-                    st.rerun()
+                    
+                    # Guardar el resultado de este escenario
+                    st.session_state.evaluaciones.append({
+                        "escenario": st.session_state.escenario_actual,
+                        "respuesta": respuesta,
+                        "calificacion": resultado_json.get("calificacion", 0),
+                        "retroalimentacion": resultado_json.get("retroalimentacion", "")
+                    })
+                    
+                    # Comprobar si necesitamos ir al escenario 2 o terminar
+                    if st.session_state.numero_actual < 2:
+                        st.session_state.numero_actual += 1
+                        with st.spinner("Generando el escenario 2..."):
+                            prompt_gen_2 = f"Genera OTRO escenario de dificultad {DIFICULTAD_DEL_EXAMEN}. DEBE ser una situación y departamento completamente diferente a este escenario anterior: '{st.session_state.escenario_actual}'"
+                            response_2 = client.models.generate_content(
+                                model='gemini-2.5-flash',
+                                contents=prompt_gen_2,
+                                config=types.GenerateContentConfig(system_instruction=generador_instrucciones)
+                            )
+                            st.session_state.escenario_actual = response_2.text
+                        st.rerun()
+                    else:
+                        st.session_state.fase = "resultados"
+                        st.rerun()
+                        
                 except Exception as e:
                     st.error(f"Error técnico de lectura: {e}")
-                    st.info(f"Respuesta cruda de la IA: {eval_response.text}")
 
 # FASE 3: Resultados y Registro en Base de Datos
 elif st.session_state.fase == "resultados":
-    calificacion = st.session_state.resultado.get("calificacion", 0)
-    retro = st.session_state.resultado.get("retroalimentacion", "")
+    
+    # Calcular el promedio de los 2 escenarios
+    suma_calificaciones = sum(evaluacion["calificacion"] for evaluacion in st.session_state.evaluaciones)
+    calificacion_final = round(suma_calificaciones / 2)
     fecha = datetime.now().strftime("%d/%m/%Y %H:%M")
     
     # === CONEXIÓN A GOOGLE SHEETS ===
@@ -146,35 +170,43 @@ elif st.session_state.fase == "resultados":
             gclient = gspread.authorize(creds)
             
             sheet = gclient.open_by_url(URL_DE_TU_HOJA).sheet1
-            sheet.append_row([st.session_state.nombre, DIFICULTAD_DEL_EXAMEN, calificacion, fecha])
+            # Se guarda la calificación PROMEDIO final
+            sheet.append_row([st.session_state.nombre, DIFICULTAD_DEL_EXAMEN, calificacion_final, fecha])
             
             st.session_state.guardado = True
-            st.toast("✅ Calificación registrada en el sistema del gerente.")
+            st.toast("✅ Calificación final registrada en el sistema.")
         except Exception as e:
             st.error(f"Error de base de datos: {e}")
     # ========================================================
 
-    if calificacion >= 85:
+    if calificacion_final >= 85:
         st.balloons()
         st.success("¡EXAMEN APROBADO!")
     else:
-        st.error("EXAMEN REPROBADO. Necesitas un 85% para pasar.")
+        st.error("EXAMEN REPROBADO. Necesitas un promedio de 85% para pasar.")
     
     st.markdown(f"""
-    <div style="padding: 20px; border: 2px solid {'#28a745' if calificacion >= 85 else '#dc3545'}; border-radius: 10px; background-color: {'#eafaf1' if calificacion >= 85 else '#fdeded'}; color: black;">
+    <div style="padding: 20px; border: 2px solid {'#28a745' if calificacion_final >= 85 else '#dc3545'}; border-radius: 10px; background-color: {'#eafaf1' if calificacion_final >= 85 else '#fdeded'}; color: black;">
         <h2 style="text-align: center; margin-bottom: 0;">Boleta Oficial La Vaquita</h2>
         <p style="text-align: center; font-size: 14px; margin-top: 0;">{fecha}</p>
         <hr style="border-top: 1px solid black;">
         <p><b>Gerente:</b> {st.session_state.nombre}</p>
         <p><b>Dificultad del Examen:</b> {DIFICULTAD_DEL_EXAMEN}</p>
-        <p><b>Calificación Final:</b> <span style="font-size: 24px; font-weight: bold; color: {'#28a745' if calificacion >= 85 else '#dc3545'};">{calificacion}%</span></p>
+        <p><b>Calificación Promedio:</b> <span style="font-size: 24px; font-weight: bold; color: {'#28a745' if calificacion_final >= 85 else '#dc3545'};">{calificacion_final}%</span></p>
     </div>
     """, unsafe_allow_html=True)
     
     st.write("---")
-    st.subheader("🔍 Análisis del Examinador:")
-    st.info(retro)
+    st.header("🔍 Desglose de Resultados")
     
+    # Mostrar la retroalimentación de ambos escenarios
+    for i, evaluacion in enumerate(st.session_state.evaluaciones):
+        with st.expander(f"Ver retroalimentación del Escenario {i+1} (Calificación: {evaluacion['calificacion']}%)", expanded=True):
+            st.info(evaluacion["retroalimentacion"])
+            st.write("**Tu respuesta fue:**")
+            st.caption(evaluacion["respuesta"])
+    
+    st.divider()
     if st.button("Volver al Inicio"):
         st.session_state.clear()
         st.rerun()
