@@ -48,13 +48,14 @@ client = genai.Client(api_key=api_key)
 def obtener_instrucciones_generador(dificultad):
     return f"""
     Eres un generador de exámenes para gerentes de La Vaquita Meat Market. 
-    Genera UNA sola queja de cliente realista en español. No des introducciones. Describe directamente la situación y las palabras exactas que dice el cliente para iniciar la conversación.
+    Debes iniciar la simulación separando CLARAMENTE las acciones físicas de lo que el cliente dice en voz alta.
 
-    REGLAS:
-    1. Pistas de Lenguaje Corporal: SIEMPRE incluye una descripción clara de tu estado físico al inicio (ej. estoy mirando mi reloj frenéticamente, tengo cara de agotamiento).
-    2. Dificultad: Si la dificultad es "Difícil", DEBES cruzar la línea usando un insulto o lenguaje denigrante hacia el personal en tu primer mensaje.
+    FORMATO ESTRICTO REQUERIDO:
+    **Escenario:** [Describe aquí dónde están, el problema subyacente y una pista clara sobre el lenguaje corporal o estado físico del cliente, ej. mirando su reloj con prisa, cargando bolsas pesadas].
+    
+    **Cliente:** "[Escribe aquí exactamente lo que el cliente dice en voz alta para iniciar la queja. No incluyas narración aquí, solo diálogo]".
 
-    Dificultad EXIGIDA: {dificultad}.
+    Dificultad EXIGIDA: {dificultad}. Si la dificultad es "Difícil", el cliente DEBE incluir un insulto o lenguaje denigrante en su diálogo inicial.
     """
 
 def obtener_instrucciones_actor(dificultad):
@@ -64,6 +65,7 @@ def obtener_instrucciones_actor(dificultad):
     
     REGLAS DE ACTUACIÓN:
     - Responde a lo que dice el gerente de forma conversacional. 
+    - NO narres tus propias acciones como si las estuvieras hablando. Si haces una acción física, ponla entre asteriscos (ej. *suspiro molesto* o *me cruzo de brazos*).
     - Si la dificultad es Difícil y no te establecen límites ante tus insultos, sé más agresivo.
     - Si están en medio del pasillo y el gerente no te reubica, quéjate de que todos los están viendo.
     
@@ -117,7 +119,7 @@ def generar_nuevo_escenario():
     st.session_state.historial_chat = []
     depto = random.choice(DEPARTAMENTOS)
     problema = random.choice(PROBLEMAS)
-    prompt_aleatorio = f"Genera el escenario número {st.session_state.numero_actual} de dificultad {st.session_state.dificultad}. El escenario DEBE ocurrir en {depto} y el problema DEBE ser sobre {problema}. Escribe directamente la primera queja del cliente."
+    prompt_aleatorio = f"Genera el escenario número {st.session_state.numero_actual} de dificultad {st.session_state.dificultad}. El escenario DEBE ocurrir en {depto} y el problema DEBE ser sobre {problema}. Presenta la queja siguiendo estrictamente el formato de Escenario y Cliente."
     
     response = client.models.generate_content(
         model='gemini-2.5-flash',
