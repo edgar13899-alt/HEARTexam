@@ -12,8 +12,8 @@ import random
 # ==========================================
 # ⚙️ CONFIGURACIÓN DEL ADMINISTRADOR
 # ==========================================
-DIFICULTAD_DEL_EXAMEN = "Difícil" 
-URL_DE_TU_HOJA = "https://docs.google.com/spreadsheets/d/your-link-here/edit"
+DIFICULTAD_DEL_EXAMEN = "Fácil" 
+URL_DE_TU_HOJA = "https://docs.google.com/spreadsheets/d/1XI1QnWKtp2BQUKWQqjsWRThKd6axbEHjfnfqv3AKTNY/edit?gid=0#gid=0"
 
 # --- LISTAS ALEATORIAS PARA FORZAR VARIEDAD ---
 DEPARTAMENTOS = ["la taquería", "la carnicería", "la panadería", "la pastelería", "la paletería", "frutas y verduras", "las cajas registradoras"]
