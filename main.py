@@ -3,7 +3,6 @@ from google import genai
 from google.genai import types
 import os
 import json
-import re
 from datetime import datetime
 import gspread
 from google.oauth2.service_account import Credentials
@@ -12,7 +11,6 @@ import random
 # ==========================================
 # ⚙️ CONFIGURACIÓN DEL ADMINISTRADOR
 # ==========================================
-DIFICULTAD_DEL_EXAMEN = "Fácil" 
 URL_DE_TU_HOJA = "https://docs.google.com/spreadsheets/d/1XI1QnWKtp2BQUKWQqjsWRThKd6axbEHjfnfqv3AKTNY/edit?gid=0#gid=0"
 
 # --- LISTAS ALEATORIAS PARA FORZAR VARIEDAD ---
@@ -29,6 +27,7 @@ PROBLEMAS = [
 # --- CONFIGURACIÓN DE LA PÁGINA ---
 st.set_page_config(page_title="Examen HEART - La Vaquita", page_icon="📝", layout="centered")
 
+# Ocultar la navegación estándar de Streamlit para "encerrar" al usuario
 hide_menu_style = """
     <style>
     #MainMenu {visibility: hidden;}
@@ -46,25 +45,36 @@ if not api_key:
 
 client = genai.Client(api_key=api_key)
 
-# --- INSTRUCCIONES DEL SISTEMA ---
-generador_instrucciones = f"""
-Eres un generador de exámenes para gerentes de La Vaquita Meat Market. 
-Genera UNA sola queja de cliente realista en español. No des introducciones ni saludos, solo describe directamente la situación y las palabras exactas que dice el cliente.
-El nivel de dificultad EXIGIDO para este examen es: {DIFICULTAD_DEL_EXAMEN}.
-"""
+# --- INSTRUCCIONES DEL SISTEMA (DINÁMICAS) ---
+def obtener_instrucciones_generador(dificultad):
+    return f"""
+    Eres un generador de exámenes para gerentes de La Vaquita Meat Market. 
+    Genera UNA sola queja de cliente realista en español. No des introducciones ni saludos, solo describe directamente la situación y las palabras exactas que dice el cliente.
+
+    REGLAS ESTRICTAS DE GENERACIÓN:
+    1. Pistas de Lenguaje Corporal: SIEMPRE incluye una descripción clara del estado físico o lenguaje corporal del cliente al inicio (ej. está mirando su reloj frenéticamente, tiene cara de agotamiento, está gritando y haciendo un escándalo en medio del pasillo).
+    2. Dificultad: Si la dificultad es "Difícil", el cliente DEBE cruzar la línea usando un insulto o lenguaje denigrante hacia el personal en su queja inicial.
+
+    El nivel de dificultad EXIGIDO para este examen es: {dificultad}.
+    """
 
 evaluador_instrucciones = """
-Eres un examinador estricto. Evalúa la respuesta del gerente al escenario dado usando el método HEART.
-- H (Escuchar/Silencio)
-- E (Empatizar sin darle la razón absoluta)
-- A (Disculpa específica y asumiendo responsabilidad)
-- R (Resolver. DEBEN reubicar al cliente si hace un escándalo público. Cuidado con los descuentos inmerecidos).
-- T (Agradecer)
+Eres un examinador estricto de La Vaquita Meat Market. Evalúa la respuesta de un gerente a un escenario utilizando el método HEART y las políticas de la tienda.
+
+RUBRICA DE EVALUACIÓN:
+- H (Hear): ¿Escucharon la situación?
+- E (Empathize): ¿Validaron la frustración sin dar la razón absoluta al cliente?
+- A (Apologize): ¿Fue genuina la disculpa y asumieron la responsabilidad?
+- R (Resolve & Reubicar): ¿Solucionaron el problema de forma justa (ej. dando tiempos de espera precisos)? 
+    * Regla de Reubicación: Si el cliente estaba haciendo un escándalo, ¿el gerente propuso moverlo a una zona más tranquila? 
+    * Personalización Silenciosa: ¿Adaptaron su solución al lenguaje corporal del cliente (ej. ofrecer rapidez si tenían prisa) SIN decir explícitamente "veo que tiene prisa" o "veo que está estresado"? (Penaliza si lo señalan explícitamente).
+- T (Thank): ¿Agradecieron al cliente por su paciencia y comentarios?
+- 🛑 Límites y Respeto: Si el cliente usó insultos o actitud denigrante en el escenario, ¿el gerente estableció un límite profesional firme en su respuesta? (Penaliza fuertemente si el gerente solo se disculpó y toleró el abuso).
 
 Debes devolver TU EVALUACIÓN EXCLUSIVAMENTE en el siguiente formato JSON, sin texto adicional:
 {
-  "calificacion": [Un número del 0 al 100],
-  "retroalimentacion": "[Tu análisis detallado de qué hicieron bien y qué les faltó según las reglas]"
+  "calificacion": [Un número estricto del 0 al 100 evaluando todas las reglas anteriores],
+  "retroalimentacion": "[Tu análisis detallado de qué hicieron bien y qué les faltó, mencionando específicamente si fallaron en la reubicación, la personalización silenciosa o en establecer límites]"
 }
 """
 
@@ -73,6 +83,8 @@ if "fase" not in st.session_state:
     st.session_state.fase = "login"
 if "nombre" not in st.session_state:
     st.session_state.nombre = ""
+if "dificultad" not in st.session_state:
+    st.session_state.dificultad = "Fácil"
 if "numero_actual" not in st.session_state:
     st.session_state.numero_actual = 1
 if "escenario_actual" not in st.session_state:
@@ -85,33 +97,42 @@ if "evaluaciones" not in st.session_state:
 # ==========================================
 st.title("📝 Examen Oficial de Certificación HEART")
 
-# FASE 1: Registro
+# FASE 1: Registro (Solo Administrador)
 if st.session_state.fase == "login":
-    st.write("Bienvenido al examen de resolución de clientes. El sistema generará **3 escenarios únicos** para ti.")
-    st.info(f"**Dificultad actual del examen:** {DIFICULTAD_DEL_EXAMEN}")
+    st.write("Bienvenido al portal de evaluación. El sistema generará **3 escenarios únicos**.")
     
-    nombre_input = st.text_input("Ingresa tu nombre completo para comenzar:")
+    st.divider()
+    st.subheader("⚙️ Configuración del Administrador")
+    st.info("Configura estos datos antes de girar la pantalla hacia el gerente que tomará el examen.")
+    
+    nombre_input = st.text_input("Ingresa el nombre del gerente a evaluar:")
+    dificultad_seleccionada = st.selectbox(
+        "Selecciona el nivel de dificultad del examen:",
+        ["Fácil", "Medio", "Difícil"]
+    )
+    
     if st.button("Comenzar Examen"):
         if nombre_input.strip() == "":
-            st.warning("Debes ingresar tu nombre.")
+            st.warning("Debes ingresar el nombre del gerente.")
         else:
             st.session_state.nombre = nombre_input
+            st.session_state.dificultad = dificultad_seleccionada
             
             depto1 = random.choice(DEPARTAMENTOS)
             problema1 = random.choice(PROBLEMAS)
-            prompt_aleatorio = f"Genera el escenario número 1 de dificultad {DIFICULTAD_DEL_EXAMEN}. El escenario DEBE ocurrir en {depto1} y el problema del cliente DEBE ser sobre {problema1}."
+            prompt_aleatorio = f"Genera el escenario número 1 de dificultad {st.session_state.dificultad}. El escenario DEBE ocurrir en {depto1} y el problema del cliente DEBE ser sobre {problema1}."
             
-            with st.spinner("Generando tu primer escenario..."):
+            with st.spinner("Generando el primer escenario seguro..."):
                 response = client.models.generate_content(
                     model='gemini-2.5-flash',
                     contents=prompt_aleatorio,
-                    config=types.GenerateContentConfig(system_instruction=generador_instrucciones)
+                    config=types.GenerateContentConfig(system_instruction=obtener_instrucciones_generador(st.session_state.dificultad))
                 )
                 st.session_state.escenario_actual = response.text
                 st.session_state.fase = "examen"
                 st.rerun()
 
-# FASE 2: Tomar el Examen
+# FASE 2: Tomar el Examen (Modo Bloqueado)
 elif st.session_state.fase == "examen":
     st.write(f"👤 **Gerente:** {st.session_state.nombre} | 📝 **Escenario {st.session_state.numero_actual} de 3**")
     st.divider()
@@ -123,11 +144,11 @@ elif st.session_state.fase == "examen":
     
     respuesta = st.text_area("Tu respuesta:", key=f"respuesta_{st.session_state.numero_actual}", height=200)
     
-    if st.button("Enviar Respuesta"):
+    if st.button("Enviar Respuesta y Continuar"):
         if respuesta.strip() == "":
             st.warning("No puedes enviar una respuesta en blanco.")
         else:
-            with st.spinner("El examinador de la IA está evaluando tu respuesta..."):
+            with st.spinner("Enviando respuesta y cargando la siguiente fase..."):
                 prompt_evaluacion = f"Escenario: {st.session_state.escenario_actual}\n\nRespuesta del Gerente: {respuesta}"
                 
                 eval_response = client.models.generate_content(
@@ -156,13 +177,13 @@ elif st.session_state.fase == "examen":
                         
                         depto_nuevo = random.choice(DEPARTAMENTOS)
                         problema_nuevo = random.choice(PROBLEMAS)
-                        prompt_gen_nuevo = f"Genera OTRO escenario de dificultad {DIFICULTAD_DEL_EXAMEN}. DEBE ocurrir en {depto_nuevo} y el problema DEBE ser sobre {problema_nuevo}. Tiene que ser completamente diferente a este escenario anterior: '{st.session_state.escenario_actual}'"
+                        prompt_gen_nuevo = f"Genera OTRO escenario de dificultad {st.session_state.dificultad}. DEBE ocurrir en {depto_nuevo} y el problema DEBE ser sobre {problema_nuevo}. Tiene que ser completamente diferente a este escenario anterior: '{st.session_state.escenario_actual}'"
                         
                         with st.spinner(f"Generando el escenario {st.session_state.numero_actual}..."):
                             response_nuevo = client.models.generate_content(
                                 model='gemini-2.5-flash',
                                 contents=prompt_gen_nuevo,
-                                config=types.GenerateContentConfig(system_instruction=generador_instrucciones)
+                                config=types.GenerateContentConfig(system_instruction=obtener_instrucciones_generador(st.session_state.dificultad))
                             )
                             st.session_state.escenario_actual = response_nuevo.text
                         st.rerun()
@@ -189,7 +210,7 @@ elif st.session_state.fase == "resultados":
             gclient = gspread.authorize(creds)
             
             sheet = gclient.open_by_url(URL_DE_TU_HOJA).sheet1
-            sheet.append_row([st.session_state.nombre, DIFICULTAD_DEL_EXAMEN, calificacion_final, fecha])
+            sheet.append_row([st.session_state.nombre, st.session_state.dificultad, calificacion_final, fecha])
             
             st.session_state.guardado = True
             st.toast("✅ Calificación final registrada en el sistema.")
@@ -211,22 +232,22 @@ elif st.session_state.fase == "resultados":
         <p style="text-align: center; font-size: 14px; margin-top: 0;">{fecha}</p>
         <hr style="border-top: 1px solid black;">
         <p><b>Gerente:</b> {st.session_state.nombre}</p>
-        <p><b>Dificultad del Examen:</b> {DIFICULTAD_DEL_EXAMEN}</p>
+        <p><b>Dificultad del Examen:</b> {st.session_state.dificultad}</p>
         <p><b>Calificación Promedio:</b> <span style="font-size: 24px; font-weight: bold; color: {color_borde};">{calificacion_final}%</span></p>
     </div>
     """
     st.markdown(boleta_html, unsafe_allow_html=True)
     
     st.write("---")
-    st.header("🔍 Desglose de Resultados")
+    st.header("🔍 Desglose de Resultados (Solo para el Administrador)")
     
     for i, evaluacion in enumerate(st.session_state.evaluaciones):
         with st.expander(f"Ver retroalimentación del Escenario {i+1} (Calificación: {evaluacion['calificacion']}%)", expanded=True):
             st.info(evaluacion["retroalimentacion"])
-            st.write("**Tu respuesta fue:**")
+            st.write("**Respuesta del Gerente:**")
             st.caption(evaluacion["respuesta"])
     
     st.divider()
-    if st.button("Volver al Inicio"):
+    if st.button("Finalizar y Preparar Nuevo Examen"):
         st.session_state.clear()
         st.rerun()
