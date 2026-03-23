@@ -87,7 +87,7 @@ st.title("📝 Examen Oficial de Certificación HEART")
 
 # FASE 1: Registro
 if st.session_state.fase == "login":
-    st.write("Bienvenido al examen de resolución de clientes. El sistema generará **2 escenarios únicos** para ti.")
+    st.write("Bienvenido al examen de resolución de clientes. El sistema generará **3 escenarios únicos** para ti.")
     st.info(f"**Dificultad actual del examen:** {DIFICULTAD_DEL_EXAMEN}")
     
     nombre_input = st.text_input("Ingresa tu nombre completo para comenzar:")
@@ -113,7 +113,7 @@ if st.session_state.fase == "login":
 
 # FASE 2: Tomar el Examen
 elif st.session_state.fase == "examen":
-    st.write(f"👤 **Gerente:** {st.session_state.nombre} | 📝 **Escenario {st.session_state.numero_actual} de 2**")
+    st.write(f"👤 **Gerente:** {st.session_state.nombre} | 📝 **Escenario {st.session_state.numero_actual} de 3**")
     st.divider()
     
     st.subheader("🔴 Situación del Cliente:")
@@ -150,20 +150,21 @@ elif st.session_state.fase == "examen":
                         "retroalimentacion": resultado_json.get("retroalimentacion", "")
                     })
                     
-                    if st.session_state.numero_actual < 2:
+                    # Cambio a 3 escenarios
+                    if st.session_state.numero_actual < 3:
                         st.session_state.numero_actual += 1
                         
-                        depto2 = random.choice(DEPARTAMENTOS)
-                        problema2 = random.choice(PROBLEMAS)
-                        prompt_gen_2 = f"Genera OTRO escenario de dificultad {DIFICULTAD_DEL_EXAMEN}. DEBE ocurrir en {depto2} y el problema DEBE ser sobre {problema2}. Tiene que ser completamente diferente a este escenario anterior: '{st.session_state.escenario_actual}'"
+                        depto_nuevo = random.choice(DEPARTAMENTOS)
+                        problema_nuevo = random.choice(PROBLEMAS)
+                        prompt_gen_nuevo = f"Genera OTRO escenario de dificultad {DIFICULTAD_DEL_EXAMEN}. DEBE ocurrir en {depto_nuevo} y el problema DEBE ser sobre {problema_nuevo}. Tiene que ser completamente diferente a este escenario anterior: '{st.session_state.escenario_actual}'"
                         
-                        with st.spinner("Generando el escenario 2..."):
-                            response_2 = client.models.generate_content(
+                        with st.spinner(f"Generando el escenario {st.session_state.numero_actual}..."):
+                            response_nuevo = client.models.generate_content(
                                 model='gemini-2.5-flash',
-                                contents=prompt_gen_2,
+                                contents=prompt_gen_nuevo,
                                 config=types.GenerateContentConfig(system_instruction=generador_instrucciones)
                             )
-                            st.session_state.escenario_actual = response_2.text
+                            st.session_state.escenario_actual = response_nuevo.text
                         st.rerun()
                     else:
                         st.session_state.fase = "resultados"
@@ -175,8 +176,9 @@ elif st.session_state.fase == "examen":
 # FASE 3: Resultados y Registro en Base de Datos
 elif st.session_state.fase == "resultados":
     
+    # Se divide entre 3 para el promedio exacto
     suma_calificaciones = sum(evaluacion["calificacion"] for evaluacion in st.session_state.evaluaciones)
-    calificacion_final = round(suma_calificaciones / 2)
+    calificacion_final = round(suma_calificaciones / 3)
     fecha = datetime.now().strftime("%d/%m/%Y %H:%M")
     
     if "guardado" not in st.session_state:
@@ -200,7 +202,6 @@ elif st.session_state.fase == "resultados":
     else:
         st.error("EXAMEN REPROBADO. Necesitas un promedio de 85% para pasar.")
     
-    # --- FIXED REPORT CARD SECTION ---
     color_borde = '#28a745' if calificacion_final >= 85 else '#dc3545'
     color_fondo = '#eafaf1' if calificacion_final >= 85 else '#fdeded'
     
@@ -215,7 +216,6 @@ elif st.session_state.fase == "resultados":
     </div>
     """
     st.markdown(boleta_html, unsafe_allow_html=True)
-    # ---------------------------------
     
     st.write("---")
     st.header("🔍 Desglose de Resultados")
