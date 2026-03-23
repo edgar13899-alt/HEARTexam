@@ -12,8 +12,8 @@ import random
 # ==========================================
 # ⚙️ CONFIGURACIÓN DEL ADMINISTRADOR
 # ==========================================
-DIFICULTAD_DEL_EXAMEN = "Fácil" 
-URL_DE_TU_HOJA = "https://docs.google.com/spreadsheets/d/1XI1QnWKtp2BQUKWQqjsWRThKd6axbEHjfnfqv3AKTNY/edit?gid=0#gid=0"
+DIFICULTAD_DEL_EXAMEN = "Difícil" 
+URL_DE_TU_HOJA = "https://docs.google.com/spreadsheets/d/your-link-here/edit"
 
 # --- LISTAS ALEATORIAS PARA FORZAR VARIEDAD ---
 DEPARTAMENTOS = ["la taquería", "la carnicería", "la panadería", "la pastelería", "la paletería", "frutas y verduras", "las cajas registradoras"]
@@ -200,6 +200,33 @@ elif st.session_state.fase == "resultados":
     else:
         st.error("EXAMEN REPROBADO. Necesitas un promedio de 85% para pasar.")
     
-    st.markdown(f"""
-    <div style="padding: 20px; border: 2px solid {'#28a745' if calificacion_final >= 85 else '#dc3545'}; border-radius: 10px; background-color: {'#eafaf1' if calificacion_final >= 85 else '#fdeded'}; color: black;">
+    # --- FIXED REPORT CARD SECTION ---
+    color_borde = '#28a745' if calificacion_final >= 85 else '#dc3545'
+    color_fondo = '#eafaf1' if calificacion_final >= 85 else '#fdeded'
+    
+    boleta_html = f"""
+    <div style="padding: 20px; border: 2px solid {color_borde}; border-radius: 10px; background-color: {color_fondo}; color: black;">
         <h2 style="text-align: center; margin-bottom: 0;">Boleta Oficial La Vaquita</h2>
+        <p style="text-align: center; font-size: 14px; margin-top: 0;">{fecha}</p>
+        <hr style="border-top: 1px solid black;">
+        <p><b>Gerente:</b> {st.session_state.nombre}</p>
+        <p><b>Dificultad del Examen:</b> {DIFICULTAD_DEL_EXAMEN}</p>
+        <p><b>Calificación Promedio:</b> <span style="font-size: 24px; font-weight: bold; color: {color_borde};">{calificacion_final}%</span></p>
+    </div>
+    """
+    st.markdown(boleta_html, unsafe_allow_html=True)
+    # ---------------------------------
+    
+    st.write("---")
+    st.header("🔍 Desglose de Resultados")
+    
+    for i, evaluacion in enumerate(st.session_state.evaluaciones):
+        with st.expander(f"Ver retroalimentación del Escenario {i+1} (Calificación: {evaluacion['calificacion']}%)", expanded=True):
+            st.info(evaluacion["retroalimentacion"])
+            st.write("**Tu respuesta fue:**")
+            st.caption(evaluacion["respuesta"])
+    
+    st.divider()
+    if st.button("Volver al Inicio"):
+        st.session_state.clear()
+        st.rerun()
