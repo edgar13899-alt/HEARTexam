@@ -41,8 +41,13 @@ problemas_comunes = [
     "un error en la cocina que causó que una orden previa para recoger se retrasara 20 minutos más de lo prometido, y el cliente está impaciente", 
     "un cliente que YA PAGÓ y revisando su recibo nota que se le cobró de más por un error en el sistema o un letrero confuso, exigiendo la diferencia", 
     "un cliente frustrado que intenta devolver un producto argumentando que salió de mala calidad o echado a perder, PERO NO TIENE SU RECIBO DE COMPRA",
-    "un empleado que supuestamente le dio un mal trato, lo ignoró o le habló con mala actitud al cliente",
-    "un cliente que por error agarró el producto equivocado (ej. papas picantes en lugar de regulares) y quiere cambiarlo, sintiéndose un poco a la defensiva o avergonzado por su propio error"
+    "un empleado que supuestamente le dio un mal trato, lo ignoró o le habló con mala actitud al cliente"
+]
+
+errores_cliente = [
+    "un cliente que por error agarró el producto equivocado (ej. papas picantes en lugar de regulares) y quiere cambiarlo, sintiéndose un poco a la defensiva o avergonzado por su propio error",
+    "un cliente que accidentalmente tiró y rompió un frasco de vidrio que ya había pagado antes de salir de la tienda, y pregunta un poco apenado si le pueden dar otro gratis",
+    "un cliente que exige un descuento porque leyó mal un letrero de oferta que estaba claramente marcado para otro producto diferente, sintiéndose frustrado"
 ]
 
 pesadillas_la_vaquita = [
@@ -162,13 +167,10 @@ with tab2:
 
     REGLAS DE CALIFICACIÓN (Resta puntos por cada infracción):
     1. PROTOCOLO SIN RECIBO (-30 pts): Si no hay recibo, ¿preguntó el método de pago e intentó buscar en el POS? Si negaron el reembolso inmediatamente, resta puntos. Si regaló dinero sin encontrar la transacción, REPRUÉBALO.
-    2. LA TRAMPA DE LA DISCULPA / ERROR DEL CLIENTE (-30 pts): Si el cliente causó el problema (ej. agarró el producto equivocado o tiró algo), verifica si el gerente se disculpó. Si el gerente se disculpó ("lo siento"), PENALÍZALOS. Debieron usar "Empatía para salvar el ego" ("A todos nos pasa") y saltar directamente al paso Resolve.
-    3. ORDEN HEART (-20 pts): ¿Hicieron Hear, Empathize, Apologize (si era error de la tienda), Resolve, Thank en orden? 
-    4. VOCABULARIO DE EMPATÍA (-20 pts): ¿Usaron "lo siento" o "perdón" en la etapa de Empatía? (Deben separar validación de disculpa).
-    5. ACUERDO PROHIBIDO (-20 pts): ¿Le dieron la razón al cliente ("usted tiene razón") en lugar de solo validar su emoción?
-    6. RENTABILIDAD SUPREMA (-40 pts): ESTA ES LA REGLA DE ORO. Solo se permiten "Cortesías de bajo costo" (agua fresca/pan dulce) para demoras en ÓRDENES PREVIAS/ERRORES. NUNCA dar descuentos. NUNCA regalar cosas por filas normales.
-    7. CULPAR AL EMPLEADO (-30 pts): Si la queja era sobre un empleado, ¿admitieron la culpa del empleado frente al cliente?
-    8. REGLA CERO (-40 pts): Si la dificultad era Extrema (insultos) y el gerente NO puso un límite de respeto, reprueba al gerente.
+    2. LA TRAMPA DE LA DISCULPA / ERROR DEL CLIENTE (-30 pts): Si el cliente causó el problema (ej. agarró mal el producto, leyó mal el letrero), el gerente NO debe disculparse ("lo siento", "siento la confusión"). También resta puntos si el gerente culpó a la tienda ("nuestros letreros están muy juntos") o asumió el estado del cliente ("estaba de prisa"). Debieron usar "Empatía Neutral" ("Entiendo la confusión, a todos nos pasa") y saltar a Resolve.
+    3. ORDEN HEART (-20 pts): ¿Hicieron H, E, A, R, T? (Excluyendo la A si es error del cliente).
+    4. RENTABILIDAD SUPREMA (-40 pts): CERO descuentos injustificados. CERO regalos por filas normales.
+    5. REGLA CERO (-40 pts): Si hay insultos, deben poner límites.
 
     FORMATO DE RESPUESTA:
     1. CALIFICACIÓN FINAL: [0-100]
@@ -180,7 +182,7 @@ with tab2:
         st.info("Selecciona la dificultad asignada para tu examen de esta semana.")
         difficulty_exam = st.selectbox(
             "Nivel del Examen:",
-            ["Fácil", "Medio", "Difícil", "Extremo (Abusivo)"]
+            ["Fácil", "Medio", "Difícil", "Extremo (Abusivo)", "Casos Especiales (Errores del Cliente)"]
         )
 
         if st.button("Comenzar Examen Práctico"):
@@ -188,12 +190,15 @@ with tab2:
             if difficulty_exam in ["Fácil", "Medio"]:
                 depto_elegido = random.choice(departamentos)
                 problema_elegido = random.choice(problemas_comunes)
-                descripcion_problema = f"La queja trata sobre {problema_elegido}. FÍSICAMENTE: El cliente se acerca directamente a ti (el gerente) en las Cajas Principales / Servicio al Cliente. NUNCA pongas al cliente deambulando por los pasillos si ya pagó o viene a hacer un reclamo post-compra."
+                descripcion_problema = f"La queja trata sobre {problema_elegido}. FÍSICAMENTE: El cliente se acerca a ti en las Cajas Principales."
+            elif difficulty_exam == "Casos Especiales (Errores del Cliente)":
+                problema_elegido = random.choice(errores_cliente)
+                descripcion_problema = f"ESTE ES UN CASO ESPECIAL DE ERROR DEL CLIENTE. La situación es: {problema_elegido}. FÍSICAMENTE: El cliente se acerca a ti en las Cajas Principales."
             else:
                 pesadilla_elegida = random.choice(pesadillas_la_vaquita)
                 descripcion_problema = f"La queja principal DEBE ser exactamente esta: {pesadilla_elegida}."
 
-            hidden_prompt = f"Inicia el examen final. Entra en personaje generando un problema de complejidad {difficulty_exam}. {descripcion_problema} RECUERDA: La dificultad define la gravedad inicial y tu actitud. ASEGÚRATE de incluir la pista de lenguaje corporal en TERCERA PERSONA en la sección Escenario, mencionando explícitamente si hay otros clientes cerca o no, y DEJAR UN SALTO DE LÍNEA ANTES DEL CLIENTE."
+            hidden_prompt = f"Inicia el examen final. Complejidad {difficulty_exam}. {descripcion_problema}. RECUERDA: La dificultad define la gravedad inicial y tu actitud. ASEGÚRATE de incluir la pista de lenguaje corporal en TERCERA PERSONA en la sección Escenario, mencionando explícitamente si hay otros clientes cerca o no, y DEJAR UN SALTO DE LÍNEA ANTES DEL CLIENTE."
             
             with st.spinner("Generando escenario de examen..."):
                 try:
