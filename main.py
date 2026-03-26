@@ -118,7 +118,6 @@ with tab2:
     st.header("El Examen Final: Prueba Práctica")
     st.write("En este examen **NO habrá un tutor ayudándote**. Tendrás que manejar al cliente tú solo usando el método HEART de principio a fin. Al terminar, presiona el botón 'Terminar y Calificar' para recibir tu calificación.")
 
-    # --- INICIALIZAR ESTADOS ---
     if "exam_history" not in st.session_state:
         st.session_state.exam_history = []
     if "examen_concluido" not in st.session_state:
@@ -133,22 +132,24 @@ with tab2:
     TU ÚNICO OBJETIVO: Actuar como un cliente realista según el nivel de dificultad. TÚ NO EVALÚAS AL GERENTE. 
 
     REGLAS DE FORMATO (MUY IMPORTANTE):
-    1. Para tu PRIMER mensaje, debes separar el contexto objetivo de lo que dices en voz alta. DEBE HABER UN SALTO DE LÍNEA entre los dos. Usa este formato exacto:
+    1. Para tu PRIMER mensaje, debes separar el contexto objetivo de lo que dices en voz alta. Usa este formato:
+    **Escenario:** [Describe tu lenguaje corporal estrictamente en TERCERA PERSONA].
+    **Cliente:** "[Escribe tu queja inicial en voz alta]".
     
-    **Escenario:** [Describe tu lenguaje corporal estrictamente en TERCERA PERSONA como un narrador objetivo. DEBES mencionar explícitamente el entorno: ¿Hay otros clientes en la fila observando? ¿Estás alzando la voz haciendo una escena pública, o están solos? NUNCA uses "yo" o "mi" aquí].
+    2. En el resto de la conversación, SOLO escribe lo que dices en voz alta. 
 
-    **Cliente:** "[Escribe tu queja inicial en voz alta, en primera persona]".
-    
-    2. En el resto de la conversación, SOLO escribe lo que dices en voz alta. Cero asteriscos, cero monólogos internos.
+    NUEVA REGLA DEL GAME MASTER (CÁMARAS Y SISTEMA): 
+    Si el gerente te dice que va a revisar las cámaras, el recibo o el sistema POS, debes salir brevemente de tu personaje para darle el resultado de su búsqueda. 
+    Añade una línea al principio de tu respuesta que diga: "[Sistema: Revisa la cámara/sistema y efectivamente el cajero cometió un error / encuentras la transacción]". Luego, responde como cliente (ej. "¿Pudo encontrarlo?"). Si la dificultad es Difícil/Extrema, a veces el sistema NO encuentra la transacción para hacer la situación más tensa.
 
     DETALLES CONTEXTUALES UNIVERSALES: 
-    Usa excusas de la vida real. Si perdiste tu recibo y te preguntan cómo pagaste, inventa si fue tarjeta o efectivo. Si dices efectivo, a menudo confúndete ligeramente con la hora exacta de la compra. Si el gerente busca la transacción y te dice que NO aparece, te frustrarás, pero si se mantienen firmes con las reglas, eventualmente te rendirás.
+    Usa excusas de la vida real. Si perdiste tu recibo y te preguntan cómo pagaste, inventa si fue tarjeta o efectivo. Si dices efectivo, a menudo confúndete ligeramente con la hora exacta. Si el gerente busca la transacción y te dice que NO aparece, te frustrarás, pero si se mantienen firmes, te rendirás.
 
     REGLAS DE DIFICULTAD:
     - FÁCIL: Eres educado. Si te ayudan, acéptalo rápido.
     - MEDIO: Estás frustrado pero eres razonable.
-    - DIFÍCIL: Eres manipulador, pasivo-agresivo y exiges más de lo justo.
-    - EXTREMO (ABUSIVO): Eres furioso, irracional y usas insultos. Tu objetivo es ver si el gerente aplica la Regla Cero (poner límites).
+    - DIFÍCIL: Eres manipulador, pasivo-agresivo.
+    - EXTREMO (ABUSIVO): Eres furioso y usas insultos. Tu objetivo es ver si el gerente aplica la Regla Cero.
 
     CÓMO TERMINAR: Escribe "FIN DE LA SIMULACIÓN" en una línea nueva si el gerente completó la interacción (te dio la solución/se despidió) o si te marcan un límite estricto y te vas.
     """
@@ -156,16 +157,16 @@ with tab2:
     examiner_instrucciones = """
     Eres el EXAMINADOR FINAL IMPLACABLE de La Vaquita Meat Market.
     
-    Tu trabajo es calificar la transcripción de la simulación del gerente de 0 a 100 y dar un veredicto de APROBADO o REPROBADO. Eres muy estricto con las políticas de la empresa.
+    Tu trabajo es calificar la transcripción de la simulación del gerente de 0 a 100 y dar un veredicto de APROBADO o REPROBADO.
 
     REGLAS DE CALIFICACIÓN (Resta puntos por cada infracción):
-    1. PROTOCOLO SIN RECIBO (-30 pts): Si el escenario trata de un cliente sin recibo, ¿el gerente preguntó el método de pago e intentó buscar la transacción en el sistema POS? Si negaron el reembolso inmediatamente sin ofrecer buscar, resta puntos. Si el gerente dio el reembolso/dinero SIN haber "encontrado" la transacción en el sistema, REPRUÉBALO de inmediato. Deben usar el "escudo del sistema" para decir no si la búsqueda falla.
-    2. ORDEN HEART (-20 pts): ¿Hicieron Hear, Empathize, Apologize, Resolve, Thank en orden? ¿Hicieron las preguntas investigativas en la etapa 'Hear'?
-    3. VOCABULARIO DE EMPATÍA (-20 pts): ¿Usaron la palabra "lo siento" o "perdón" en la etapa de Empatía? (Deben separar validación de disculpa).
+    1. PROTOCOLO SIN RECIBO (-30 pts): Si no hay recibo, ¿preguntó el método de pago e intentó buscar en el POS? Si negaron el reembolso inmediatamente, resta puntos. Si regaló dinero sin encontrar la transacción, REPRUÉBALO.
+    2. ORDEN HEART (-20 pts): ¿Hicieron Hear, Empathize, Apologize, Resolve, Thank en orden? 
+    3. VOCABULARIO DE EMPATÍA (-20 pts): ¿Usaron "lo siento" o "perdón" en la etapa de Empatía? (Deben separar validación de disculpa).
     4. ACUERDO PROHIBIDO (-20 pts): ¿Le dieron la razón al cliente ("usted tiene razón") en lugar de solo validar su emoción?
-    5. RENTABILIDAD SUPREMA (-40 pts): ESTA ES LA REGLA DE ORO. Si el gerente regaló dinero injustificadamente, o le dio un descuento al cliente por un tiempo de espera normal de fila... REPRUÉBALOS INMEDIATAMENTE. Solo se permiten "Cortesías de bajo costo" (agua fresca/pan dulce) para demoras en ÓRDENES PREVIAS/ERRORES, o descuentos si el error de la tienda fue MAYOR (ej. comida caducada). NUNCA regalar cosas por filas normales.
+    5. RENTABILIDAD SUPREMA (-40 pts): ESTA ES LA REGLA DE ORO. Solo se permiten "Cortesías de bajo costo" (agua fresca/pan dulce) para demoras en ÓRDENES PREVIAS/ERRORES. NUNCA dar descuentos o tarjetas de regalo. NUNCA regalar cosas por filas normales.
     6. CULPAR AL EMPLEADO (-30 pts): Si la queja era sobre un empleado, ¿admitieron la culpa del empleado frente al cliente?
-    7. REGLA CERO (-40 pts): Si la dificultad era Extrema (insultos) y el gerente NO puso un límite de respeto, reprueba al gerente por permitir abuso.
+    7. REGLA CERO (-40 pts): Si la dificultad era Extrema (insultos) y el gerente NO puso un límite de respeto, reprueba al gerente.
 
     FORMATO DE RESPUESTA:
     1. CALIFICACIÓN FINAL: [0-100]
@@ -173,7 +174,6 @@ with tab2:
     3. ANÁLISIS DETALLADO: Explica exactamente qué reglas rompieron o cuáles aplicaron a la perfección. Da ejemplos de lo que escribieron.
     """
 
-    # --- INICIO DEL EXAMEN ---
     if len(st.session_state.exam_history) == 0 and not st.session_state.examen_concluido:
         st.info("Selecciona la dificultad asignada para tu examen de esta semana.")
         difficulty_exam = st.selectbox(
@@ -186,8 +186,7 @@ with tab2:
             if difficulty_exam in ["Fácil", "Medio"]:
                 depto_elegido = random.choice(departamentos)
                 problema_elegido = random.choice(problemas_comunes)
-                # EL ARREGLO: Instrucciones estrictas de ubicación
-                descripcion_problema = f"La queja trata sobre {problema_elegido}. FÍSICAMENTE: El cliente se acerca directamente a ti (el gerente) en las Cajas Principales / Servicio al Cliente (o en el mostrador de {depto_elegido} si es una orden activa). NUNCA pongas al cliente deambulando por los pasillos si ya pagó o viene a hacer un reclamo post-compra."
+                descripcion_problema = f"La queja trata sobre {problema_elegido}. FÍSICAMENTE: El cliente se acerca directamente a ti (el gerente) en las Cajas Principales / Servicio al Cliente. NUNCA pongas al cliente deambulando por los pasillos si ya pagó o viene a hacer un reclamo post-compra."
             else:
                 pesadilla_elegida = random.choice(pesadillas_la_vaquita)
                 descripcion_problema = f"La queja principal DEBE ser exactamente esta: {pesadilla_elegida}."
@@ -208,7 +207,6 @@ with tab2:
                 except Exception as e:
                     st.error("⚠️ Los servidores de Google están experimentando alta demanda (Error 503). Por favor, intenta iniciar el examen de nuevo en unos segundos.")
 
-    # --- DESARROLLO DEL EXAMEN ---
     elif not st.session_state.examen_concluido:
         chat_container = st.container()
 
@@ -252,7 +250,7 @@ with tab2:
                         st.session_state.examen_concluido = True
                         st.rerun()
                 except Exception as e:
-                    st.session_state.exam_history.pop() # Remove the last input so they can try sending it again
+                    st.session_state.exam_history.pop() 
                     st.error("⚠️ El servidor de Google tuvo un problema de conexión (Error 503). Por favor, vuelve a enviar tu mensaje.")
 
         st.divider()
@@ -261,7 +259,6 @@ with tab2:
             st.session_state.examen_concluido = True
             st.rerun()
 
-    # --- RESULTADOS DEL EXAMEN ---
     if st.session_state.examen_concluido:
         for message in st.session_state.exam_history:
             if not message.get("hidden", False):
