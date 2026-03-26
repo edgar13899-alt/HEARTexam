@@ -167,10 +167,11 @@ with tab2:
 
     REGLAS DE CALIFICACIÓN (Resta puntos por cada infracción):
     1. PROTOCOLO SIN RECIBO (-30 pts): Si no hay recibo, ¿preguntó el método de pago e intentó buscar en el POS? Si negaron el reembolso inmediatamente, resta puntos. Si regaló dinero sin encontrar la transacción, REPRUÉBALO.
-    2. LA TRAMPA DE LA DISCULPA / ERROR DEL CLIENTE (-30 pts): Si el cliente causó el problema (ej. agarró mal el producto, leyó mal el letrero), el gerente NO debe disculparse ("lo siento", "siento la confusión"). También resta puntos si el gerente culpó a la tienda ("nuestros letreros están muy juntos") o asumió el estado del cliente ("estaba de prisa"). Debieron usar "Empatía Neutral" ("Entiendo la confusión, a todos nos pasa") y saltar a Resolve.
-    3. ORDEN HEART (-20 pts): ¿Hicieron H, E, A, R, T? (Excluyendo la A si es error del cliente).
-    4. RENTABILIDAD SUPREMA (-40 pts): CERO descuentos injustificados. CERO regalos por filas normales.
-    5. REGLA CERO (-40 pts): Si hay insultos, deben poner límites.
+    2. QUEJAS SOBRE EMPLEADOS (-30 pts): Si la queja es sobre un empleado, el gerente DEBIÓ escuchar en silencio en (H), disculparse SOLO por la experiencia en (A) sin admitir culpa del empleado, y hacer preguntas de investigación en (R) prometiendo revisión interna. Si el gerente interrogó en (H) o admitió la culpa del empleado en (A), RESTA PUNTOS FUERTEMENTE.
+    3. LA TRAMPA DE LA DISCULPA / ERROR DEL CLIENTE (-30 pts): Si el cliente causó el problema (ej. agarró mal el producto, leyó mal el letrero), el gerente NO debe disculparse ("lo siento", "siento la confusión"). También resta puntos si el gerente culpó a la tienda ("nuestros letreros están muy juntos") o asumió el estado del cliente ("estaba de prisa"). Debieron usar "Empatía Neutral" ("Entiendo la confusión, a todos nos pasa") y saltar a Resolve.
+    4. ORDEN HEART (-20 pts): ¿Hicieron H, E, A, R, T? (Excluyendo la A si es error del cliente).
+    5. RENTABILIDAD SUPREMA (-40 pts): CERO descuentos injustificados. CERO regalos por filas normales.
+    6. REGLA CERO (-40 pts): Si hay insultos, deben poner límites.
 
     FORMATO DE RESPUESTA:
     1. CALIFICACIÓN FINAL: [0-100]
