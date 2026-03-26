@@ -126,6 +126,8 @@ with tab2:
         st.session_state.examen_concluido = False
     if "examiner_feedback" not in st.session_state:
         st.session_state.examiner_feedback = ""
+    if "api_error" not in st.session_state:
+        st.session_state.api_error = False
 
     actor_instrucciones = """
     Eres el Actor del examen final interactivo en La Vaquita Meat Market. 
@@ -193,16 +195,18 @@ with tab2:
             hidden_prompt = f"Inicia el examen final. Entra en personaje generando un problema de complejidad {difficulty_exam}. {descripcion_problema} RECUERDA: La dificultad define la gravedad inicial y tu actitud. ASEGÚRATE de incluir la pista de lenguaje corporal en TERCERA PERSONA en la sección Escenario, mencionando explícitamente si hay otros clientes cerca o no, y DEJAR UN SALTO DE LÍNEA ANTES DEL CLIENTE."
             
             with st.spinner("Generando escenario de examen..."):
-                chat = client.chats.create(
-                    model="gemini-2.5-flash",
-                    config=types.GenerateContentConfig(system_instruction=actor_instrucciones, safety_settings=seguridad_baja)
-                )
-                response = chat.send_message(hidden_prompt)
-                
-            texto_seguro = response.text if response.text else "⚠️ *Filtro activado.*"
-            st.session_state.exam_history.append({"role": "user", "content": hidden_prompt, "hidden": True})
-            st.session_state.exam_history.append({"role": "model", "content": texto_seguro, "hidden": False})
-            st.rerun()
+                try:
+                    chat = client.chats.create(
+                        model="gemini-2.5-flash",
+                        config=types.GenerateContentConfig(system_instruction=actor_instrucciones, safety_settings=seguridad_baja)
+                    )
+                    response = chat.send_message(hidden_prompt)
+                    texto_seguro = response.text if response.text else "⚠️ *Filtro activado.*"
+                    st.session_state.exam_history.append({"role": "user", "content": hidden_prompt, "hidden": True})
+                    st.session_state.exam_history.append({"role": "model", "content": texto_seguro, "hidden": False})
+                    st.rerun()
+                except Exception as e:
+                    st.error("⚠️ Los servidores de Google están experimentando alta demanda (Error 503). Por favor, intenta iniciar el examen de nuevo en unos segundos.")
 
     # --- DESARROLLO DEL EXAMEN ---
     elif not st.session_state.examen_concluido:
@@ -228,24 +232,28 @@ with tab2:
                 for msg in st.session_state.exam_history[:-1]:
                     formatted_history.append({"role": msg["role"], "parts": [{"text": msg["content"]}]})
 
-                chat_actor = client.chats.create(
-                    model="gemini-2.5-flash", 
-                    config=types.GenerateContentConfig(system_instruction=actor_instrucciones, safety_settings=seguridad_baja),
-                    history=formatted_history
-                )
+                try:
+                    chat_actor = client.chats.create(
+                        model="gemini-2.5-flash", 
+                        config=types.GenerateContentConfig(system_instruction=actor_instrucciones, safety_settings=seguridad_baja),
+                        history=formatted_history
+                    )
 
-                with st.chat_message("assistant"):
-                    with st.spinner("El cliente responde..."):
-                        response_actor = chat_actor.send_message(exam_input)
+                    with st.chat_message("assistant"):
+                        with st.spinner("El cliente responde..."):
+                            response_actor = chat_actor.send_message(exam_input)
+                        
+                        texto_actor = response_actor.text if response_actor.text else "⚠️ *Filtro activado.*"
+                        st.markdown(texto_actor)
+                
+                    st.session_state.exam_history.append({"role": "model", "content": texto_actor, "hidden": False})
                     
-                    texto_actor = response_actor.text if response_actor.text else "⚠️ *Filtro activado.*"
-                    st.markdown(texto_actor)
-            
-            st.session_state.exam_history.append({"role": "model", "content": texto_actor, "hidden": False})
-            
-            if "FIN DE LA SIMULACIÓN" in texto_actor.upper():
-                st.session_state.examen_concluido = True
-                st.rerun()
+                    if "FIN DE LA SIMULACIÓN" in texto_actor.upper():
+                        st.session_state.examen_concluido = True
+                        st.rerun()
+                except Exception as e:
+                    st.session_state.exam_history.pop() # Remove the last input so they can try sending it again
+                    st.error("⚠️ El servidor de Google tuvo un problema de conexión (Error 503). Por favor, vuelve a enviar tu mensaje.")
 
         st.divider()
         st.caption("¿Resolviste el problema? Haz clic abajo para recibir tu calificación. No esperes a que el cliente se vaya solo.")
@@ -281,15 +289,24 @@ with tab2:
                         config=types.GenerateContentConfig(system_instruction=examiner_instrucciones, safety_settings=seguridad_baja)
                     )
                     st.session_state.examiner_feedback = examiner_response.text
+                    st.session_state.api_error = False
                 except Exception as e:
-                    st.session_state.examiner_feedback = f"⚠️ *Error al calificar: {e}*"
+                    st.session_state.api_error = True
 
-        with st.chat_message("assistant", avatar="🎓"):
-            st.markdown(st.session_state.examiner_feedback)
-            
-        st.divider()
-        if st.button("Reiniciar Examen"):
-            st.session_state.exam_history = []
-            st.session_state.examen_concluido = False
-            st.session_state.examiner_feedback = ""
-            st.rerun()
+        if st.session_state.api_error:
+            st.error("⚠️ Los servidores de Google están experimentando alta demanda (Error 503). No hemos podido generar tu calificación.")
+            if st.button("🔄 Reintentar Calificación"):
+                st.session_state.examiner_feedback = ""
+                st.session_state.api_error = False
+                st.rerun()
+        else:
+            with st.chat_message("assistant", avatar="🎓"):
+                st.markdown(st.session_state.examiner_feedback)
+                
+            st.divider()
+            if st.button("Reiniciar Examen"):
+                st.session_state.exam_history = []
+                st.session_state.examen_concluido = False
+                st.session_state.examiner_feedback = ""
+                st.session_state.api_error = False
+                st.rerun()
