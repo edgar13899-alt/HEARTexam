@@ -40,10 +40,11 @@ problemas_comunes = [
     "un cliente que YA PAGÓ y llegó a su casa, pero tuvo que regresar muy molesto porque descubrió que le dieron el producto equivocado o le falta un artículo en sus bolsas", 
     "un error en la cocina que causó que una orden previa para recoger se retrasara 20 minutos más de lo prometido, y el cliente está impaciente", 
     "un cliente que YA PAGÓ y revisando su recibo nota que se le cobró de más por un error en el sistema o un letrero confuso, exigiendo la diferencia", 
-    "un cliente frustrado que intenta devolver un producto básico (como pan o fruta) argumentando que salió de mala calidad o echado a perder",
+    "un cliente frustrado que intenta devolver un producto argumentando que salió de mala calidad o echado a perder, PERO NO TIENE SU RECIBO DE COMPRA",
     "un empleado que supuestamente le dio un mal trato, lo ignoró o le habló con mala actitud al cliente",
-    "un cliente que quiere cambiar un producto básico y cerrado (como unas papas o refresco) pero no tiene el recibo de compra"
+    "un cliente que por error agarró el producto equivocado (ej. papas picantes en lugar de regulares) y quiere cambiarlo, sintiéndose un poco a la defensiva o avergonzado por su propio error"
 ]
+
 pesadillas_la_vaquita = [
     "un cliente que recoge un pastel de cumpleaños personalizado en la panadería y exige un reembolso completo más el pastel gratis porque el nombre está mal escrito, a pesar de que el gerente tiene la hoja de pedido donde el cliente mismo escribió mal el nombre",
     "un cliente furioso que, después de recibir su pedido en el mostrador de la carnicería, hace un escándalo al enterarse de que no hay caja registradora ahí y se niega a hacer una segunda fila en las cajas principales para pagar",
@@ -140,10 +141,10 @@ with tab2:
 
     NUEVA REGLA DEL GAME MASTER (CÁMARAS Y SISTEMA): 
     Si el gerente te dice que va a revisar las cámaras, el recibo o el sistema POS, debes salir brevemente de tu personaje para darle el resultado de su búsqueda. 
-    Añade una línea al principio de tu respuesta que diga: "[Sistema: Revisa la cámara/sistema y efectivamente el cajero cometió un error / encuentras la transacción]". Luego, responde como cliente (ej. "¿Pudo encontrarlo?"). Si la dificultad es Difícil/Extrema, a veces el sistema NO encuentra la transacción para hacer la situación más tensa.
+    Añade una línea al principio de tu respuesta que diga: "[Sistema: Revisa la cámara/sistema y efectivamente encuentras el recibo / la transacción]". Luego, responde como cliente (ej. "¿Pudo encontrarlo?"). Si la dificultad es Difícil/Extrema, a veces el sistema NO encuentra la transacción para hacer la situación más tensa.
 
     DETALLES CONTEXTUALES UNIVERSALES: 
-    Usa excusas de la vida real. Si perdiste tu recibo y te preguntan cómo pagaste, inventa si fue tarjeta o efectivo. Si dices efectivo, a menudo confúndete ligeramente con la hora exacta. Si el gerente busca la transacción y te dice que NO aparece, te frustrarás, pero si se mantienen firmes, te rendirás.
+    Usa excusas de la vida real. Si perdiste tu recibo y te preguntan cómo pagaste, inventa si fue tarjeta o efectivo. Si dices efectivo, a menudo confúndete ligeramente con la hora exacta de la compra. Si es un error Tuyo (ej. agarrar mal producto), muéstrate un poco a la defensiva o apenado para salvar tu orgullo. Si el gerente busca la transacción y te dice que NO aparece, te frustrarás, pero si se mantienen firmes con las reglas, eventualmente te rendirás.
 
     REGLAS DE DIFICULTAD:
     - FÁCIL: Eres educado. Si te ayudan, acéptalo rápido.
@@ -161,12 +162,13 @@ with tab2:
 
     REGLAS DE CALIFICACIÓN (Resta puntos por cada infracción):
     1. PROTOCOLO SIN RECIBO (-30 pts): Si no hay recibo, ¿preguntó el método de pago e intentó buscar en el POS? Si negaron el reembolso inmediatamente, resta puntos. Si regaló dinero sin encontrar la transacción, REPRUÉBALO.
-    2. ORDEN HEART (-20 pts): ¿Hicieron Hear, Empathize, Apologize, Resolve, Thank en orden? 
-    3. VOCABULARIO DE EMPATÍA (-20 pts): ¿Usaron "lo siento" o "perdón" en la etapa de Empatía? (Deben separar validación de disculpa).
-    4. ACUERDO PROHIBIDO (-20 pts): ¿Le dieron la razón al cliente ("usted tiene razón") en lugar de solo validar su emoción?
-    5. RENTABILIDAD SUPREMA (-40 pts): ESTA ES LA REGLA DE ORO. Solo se permiten "Cortesías de bajo costo" (agua fresca/pan dulce) para demoras en ÓRDENES PREVIAS/ERRORES. NUNCA dar descuentos o tarjetas de regalo. NUNCA regalar cosas por filas normales.
-    6. CULPAR AL EMPLEADO (-30 pts): Si la queja era sobre un empleado, ¿admitieron la culpa del empleado frente al cliente?
-    7. REGLA CERO (-40 pts): Si la dificultad era Extrema (insultos) y el gerente NO puso un límite de respeto, reprueba al gerente.
+    2. LA TRAMPA DE LA DISCULPA / ERROR DEL CLIENTE (-30 pts): Si el cliente causó el problema (ej. agarró el producto equivocado o tiró algo), verifica si el gerente se disculpó. Si el gerente se disculpó ("lo siento"), PENALÍZALOS. Debieron usar "Empatía para salvar el ego" ("A todos nos pasa") y saltar directamente al paso Resolve.
+    3. ORDEN HEART (-20 pts): ¿Hicieron Hear, Empathize, Apologize (si era error de la tienda), Resolve, Thank en orden? 
+    4. VOCABULARIO DE EMPATÍA (-20 pts): ¿Usaron "lo siento" o "perdón" en la etapa de Empatía? (Deben separar validación de disculpa).
+    5. ACUERDO PROHIBIDO (-20 pts): ¿Le dieron la razón al cliente ("usted tiene razón") en lugar de solo validar su emoción?
+    6. RENTABILIDAD SUPREMA (-40 pts): ESTA ES LA REGLA DE ORO. Solo se permiten "Cortesías de bajo costo" (agua fresca/pan dulce) para demoras en ÓRDENES PREVIAS/ERRORES. NUNCA dar descuentos. NUNCA regalar cosas por filas normales.
+    7. CULPAR AL EMPLEADO (-30 pts): Si la queja era sobre un empleado, ¿admitieron la culpa del empleado frente al cliente?
+    8. REGLA CERO (-40 pts): Si la dificultad era Extrema (insultos) y el gerente NO puso un límite de respeto, reprueba al gerente.
 
     FORMATO DE RESPUESTA:
     1. CALIFICACIÓN FINAL: [0-100]
