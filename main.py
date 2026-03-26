@@ -156,7 +156,7 @@ with tab2:
     2. ORDEN HEART (-20 pts): ¿Hicieron Hear, Empathize, Apologize, Resolve, Thank en orden? ¿Hicieron las preguntas investigativas en la etapa 'Hear'?
     3. VOCABULARIO DE EMPATÍA (-20 pts): ¿Usaron la palabra "lo siento" o "perdón" en la etapa de Empatía? (Deben separar validación de disculpa).
     4. ACUERDO PROHIBIDO (-20 pts): ¿Le dieron la razón al cliente ("usted tiene razón") en lugar de solo validar su emoción?
-    5. RENTABILIDAD SUPREMA (-40 pts): ESTA ES LA REGLA DE ORO. Si el gerente regaló dinero injustificadamente, ofreció una tarjeta de regalo (PROHIBIDAS), o le dio un descuento al cliente por un tiempo de espera normal de fila... REPRUÉBALOS INMEDIATAMENTE. Solo se permiten "Cortesías de bajo costo" (agua fresca/pan dulce) para demoras en ÓRDENES PREVIAS/ERRORES, o descuentos si el error de la tienda fue MAYOR (ej. comida caducada). NUNCA regalar cosas por filas normales.
+    5. RENTABILIDAD SUPREMA (-40 pts): ESTA ES LA REGLA DE ORO. Si el gerente regaló dinero injustificadamente, o le dio un descuento al cliente por un tiempo de espera normal de fila... REPRUÉBALOS INMEDIATAMENTE. Solo se permiten "Cortesías de bajo costo" (agua fresca/pan dulce) para demoras en ÓRDENES PREVIAS/ERRORES, o descuentos si el error de la tienda fue MAYOR (ej. comida caducada). NUNCA regalar cosas por filas normales.
     6. CULPAR AL EMPLEADO (-30 pts): Si la queja era sobre un empleado, ¿admitieron la culpa del empleado frente al cliente?
     7. REGLA CERO (-40 pts): Si la dificultad era Extrema (insultos) y el gerente NO puso un límite de respeto, reprueba al gerente por permitir abuso.
 
@@ -201,65 +201,79 @@ with tab2:
             st.rerun()
 
     else:
-        formatted_history = []
-        for msg in st.session_state.exam_history:
-            formatted_history.append({"role": msg["role"], "parts": [{"text": msg["content"]}]})
+        # --- THE FIX: We create a container for the chat history ---
+        chat_container = st.container()
 
-        for message in st.session_state.exam_history:
-            if not message.get("hidden", False):
-                ui_role = "assistant" if message["role"] == "model" else "user"
-                with st.chat_message(ui_role):
-                    st.markdown(message["content"])
+        # Render the history INSIDE the container
+        with chat_container:
+            for message in st.session_state.exam_history:
+                if not message.get("hidden", False):
+                    ui_role = "assistant" if message["role"] == "model" else "user"
+                    with st.chat_message(ui_role):
+                        st.markdown(message["content"])
 
+        # Render the input box OUTSIDE the container (so it stays at the bottom)
         exam_input = st.chat_input("Escribe tu respuesta como Gerente...")
 
         if exam_input:
-            with st.chat_message("user"):
-                st.markdown(exam_input)
-            
+            # Append user input to history
             st.session_state.exam_history.append({"role": "user", "content": exam_input, "hidden": False})
 
-            chat_actor = client.chats.create(
-                model="gemini-2.5-flash", 
-                config=types.GenerateContentConfig(system_instruction=actor_instrucciones, safety_settings=seguridad_baja),
-                history=formatted_history
-            )
+            # Render the new user message INSIDE the container immediately
+            with chat_container:
+                with st.chat_message("user"):
+                    st.markdown(exam_input)
 
-            with st.chat_message("assistant"):
-                with st.spinner("El cliente responde..."):
-                    response_actor = chat_actor.send_message(exam_input)
-                
-                texto_actor = response_actor.text if response_actor.text else "⚠️ *Filtro activado.*"
-                st.markdown(texto_actor)
+                # Format history to send to AI
+                formatted_history = []
+                for msg in st.session_state.exam_history[:-1]:
+                    formatted_history.append({"role": msg["role"], "parts": [{"text": msg["content"]}]})
+
+                # API Call for the AI Customer
+                chat_actor = client.chats.create(
+                    model="gemini-2.5-flash", 
+                    config=types.GenerateContentConfig(system_instruction=actor_instrucciones, safety_settings=seguridad_baja),
+                    history=formatted_history
+                )
+
+                with st.chat_message("assistant"):
+                    with st.spinner("El cliente responde..."):
+                        response_actor = chat_actor.send_message(exam_input)
+                    
+                    texto_actor = response_actor.text if response_actor.text else "⚠️ *Filtro activado.*"
+                    st.markdown(texto_actor)
             
+            # Save AI response
             st.session_state.exam_history.append({"role": "model", "content": texto_actor, "hidden": False})
             
+            # If the simulation ends, call the Examiner
             if "FIN DE LA SIMULACIÓN" in texto_actor.upper():
-                st.divider()
-                st.subheader("🛑 TIEMPO FUERA. EXAMEN CONCLUIDO.")
-                with st.spinner("El Examinador Maestro está calificando tu desempeño..."):
+                with chat_container:
+                    st.divider()
+                    st.subheader("🛑 TIEMPO FUERA. EXAMEN CONCLUIDO.")
+                    with st.spinner("El Examinador Maestro está calificando tu desempeño..."):
+                        
+                        transcripcion = ""
+                        for m in st.session_state.exam_history:
+                            if not m.get("hidden", False):
+                                rol = "Cliente" if m["role"] == "model" else "Gerente"
+                                transcripcion += f"{rol}: {m['content']}\n\n"
+                        
+                        prompt_examiner = f"Evalúa la siguiente interacción del examen final y entrega la calificación, veredicto y análisis según tus instrucciones:\n\n{transcripcion}"
+                        
+                        try:
+                            examiner_response = client.models.generate_content(
+                                model="gemini-2.5-pro",
+                                contents=prompt_examiner,
+                                config=types.GenerateContentConfig(system_instruction=examiner_instrucciones, safety_settings=seguridad_baja)
+                            )
+                            texto_examiner = examiner_response.text
+                        except Exception as e:
+                            texto_examiner = f"⚠️ *Error al calificar: {e}*"
+                        
+                    with st.chat_message("assistant", avatar="🎓"):
+                        st.markdown(texto_examiner)
                     
-                    transcripcion = ""
-                    for m in st.session_state.exam_history:
-                        if not m.get("hidden", False):
-                            rol = "Cliente" if m["role"] == "model" else "Gerente"
-                            transcripcion += f"{rol}: {m['content']}\n\n"
-                    
-                    prompt_examiner = f"Evalúa la siguiente interacción del examen final y entrega la calificación, veredicto y análisis según tus instrucciones:\n\n{transcripcion}"
-                    
-                    try:
-                        examiner_response = client.models.generate_content(
-                            model="gemini-2.5-pro",
-                            contents=prompt_examiner,
-                            config=types.GenerateContentConfig(system_instruction=examiner_instrucciones, safety_settings=seguridad_baja)
-                        )
-                        texto_examiner = examiner_response.text
-                    except Exception as e:
-                        texto_examiner = f"⚠️ *Error al calificar: {e}*"
-                    
-                with st.chat_message("assistant", avatar="🎓"):
-                    st.markdown(texto_examiner)
-                
                 st.session_state.exam_history.append({"role": "model", "content": texto_examiner, "hidden": False})
                 
         st.divider()
