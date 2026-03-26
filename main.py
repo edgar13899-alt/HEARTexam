@@ -40,7 +40,6 @@ problemas_comunes = [
     "un error en la cocina que causó que una orden previa para recoger se retrasara 20 minutos más de lo prometido", 
     "un problema de calidad o frescura genérico", 
     "un precio cobrado incorrectamente en el sistema", 
-    "un derrame o accidente menor en la tienda",
     "un empleado que supuestamente le dio un mal trato, lo ignoró o le habló con mala actitud",
     "un cliente que quiere cambiar un producto básico y cerrado (como unas papas o refresco) pero no tiene el recibo de compra"
 ]
@@ -116,7 +115,15 @@ with tab1:
 # ==========================================
 with tab2:
     st.header("El Examen Final: Prueba Práctica")
-    st.write("En este examen **NO habrá un tutor ayudándote**. Tendrás que manejar al cliente tú solo usando el método HEART de principio a fin. Al terminar, el Evaluador Maestro te dará tu calificación final (Aprobado/Reprobado).")
+    st.write("En este examen **NO habrá un tutor ayudándote**. Tendrás que manejar al cliente tú solo usando el método HEART de principio a fin. Al terminar, presiona el botón 'Terminar y Calificar' para recibir tu calificación.")
+
+    # --- INICIALIZAR ESTADOS ---
+    if "exam_history" not in st.session_state:
+        st.session_state.exam_history = []
+    if "examen_concluido" not in st.session_state:
+        st.session_state.examen_concluido = False
+    if "examiner_feedback" not in st.session_state:
+        st.session_state.examiner_feedback = ""
 
     actor_instrucciones = """
     Eres el Actor del examen final interactivo en La Vaquita Meat Market. 
@@ -132,10 +139,7 @@ with tab2:
     2. En el resto de la conversación, SOLO escribe lo que dices en voz alta. Cero asteriscos, cero monólogos internos.
 
     DETALLES CONTEXTUALES UNIVERSALES: 
-    Usa excusas de la vida real. Si perdiste tu recibo y te preguntan cómo pagaste, inventa si fue tarjeta o efectivo. Si dices efectivo, a menudo confúndete ligeramente con la hora exacta de la compra (ej. "creo que fue como a las 3" cuando no estás seguro). Si el gerente busca la transacción y te dice que NO aparece, te frustrarás, pero si se mantienen firmes con las reglas, eventualmente te rendirás.
-
-    REGLA DE SENTIDO COMÚN: 
-    Si el gerente ofrece arreglar tu problema o te da una solución justa (o una cortesía si es un error o retraso de la tienda), acéptalo. NO termines la simulación en ese mismo mensaje; espera a que el gerente se despida.
+    Usa excusas de la vida real. Si perdiste tu recibo y te preguntan cómo pagaste, inventa si fue tarjeta o efectivo. Si dices efectivo, a menudo confúndete ligeramente con la hora exacta de la compra. Si el gerente busca la transacción y te dice que NO aparece, te frustrarás, pero si se mantienen firmes con las reglas, eventualmente te rendirás.
 
     REGLAS DE DIFICULTAD:
     - FÁCIL: Eres educado. Si te ayudan, acéptalo rápido.
@@ -166,10 +170,8 @@ with tab2:
     3. ANÁLISIS DETALLADO: Explica exactamente qué reglas rompieron o cuáles aplicaron a la perfección. Da ejemplos de lo que escribieron.
     """
 
-    if "exam_history" not in st.session_state:
-        st.session_state.exam_history = []
-
-    if len(st.session_state.exam_history) == 0:
+    # --- INICIO DEL EXAMEN ---
+    if len(st.session_state.exam_history) == 0 and not st.session_state.examen_concluido:
         st.info("Selecciona la dificultad asignada para tu examen de esta semana.")
         difficulty_exam = st.selectbox(
             "Nivel del Examen:",
@@ -200,11 +202,10 @@ with tab2:
             st.session_state.exam_history.append({"role": "model", "content": texto_seguro, "hidden": False})
             st.rerun()
 
-    else:
-        # --- THE FIX: We create a container for the chat history ---
+    # --- DESARROLLO DEL EXAMEN ---
+    elif not st.session_state.examen_concluido:
         chat_container = st.container()
 
-        # Render the history INSIDE the container
         with chat_container:
             for message in st.session_state.exam_history:
                 if not message.get("hidden", False):
@@ -212,24 +213,19 @@ with tab2:
                     with st.chat_message(ui_role):
                         st.markdown(message["content"])
 
-        # Render the input box OUTSIDE the container (so it stays at the bottom)
         exam_input = st.chat_input("Escribe tu respuesta como Gerente...")
 
         if exam_input:
-            # Append user input to history
             st.session_state.exam_history.append({"role": "user", "content": exam_input, "hidden": False})
 
-            # Render the new user message INSIDE the container immediately
             with chat_container:
                 with st.chat_message("user"):
                     st.markdown(exam_input)
 
-                # Format history to send to AI
                 formatted_history = []
                 for msg in st.session_state.exam_history[:-1]:
                     formatted_history.append({"role": msg["role"], "parts": [{"text": msg["content"]}]})
 
-                # API Call for the AI Customer
                 chat_actor = client.chats.create(
                     model="gemini-2.5-flash", 
                     config=types.GenerateContentConfig(system_instruction=actor_instrucciones, safety_settings=seguridad_baja),
@@ -243,40 +239,55 @@ with tab2:
                     texto_actor = response_actor.text if response_actor.text else "⚠️ *Filtro activado.*"
                     st.markdown(texto_actor)
             
-            # Save AI response
             st.session_state.exam_history.append({"role": "model", "content": texto_actor, "hidden": False})
             
-            # If the simulation ends, call the Examiner
             if "FIN DE LA SIMULACIÓN" in texto_actor.upper():
-                with chat_container:
-                    st.divider()
-                    st.subheader("🛑 TIEMPO FUERA. EXAMEN CONCLUIDO.")
-                    with st.spinner("El Examinador Maestro está calificando tu desempeño..."):
-                        
-                        transcripcion = ""
-                        for m in st.session_state.exam_history:
-                            if not m.get("hidden", False):
-                                rol = "Cliente" if m["role"] == "model" else "Gerente"
-                                transcripcion += f"{rol}: {m['content']}\n\n"
-                        
-                        prompt_examiner = f"Evalúa la siguiente interacción del examen final y entrega la calificación, veredicto y análisis según tus instrucciones:\n\n{transcripcion}"
-                        
-                        try:
-                            examiner_response = client.models.generate_content(
-                                model="gemini-2.5-pro",
-                                contents=prompt_examiner,
-                                config=types.GenerateContentConfig(system_instruction=examiner_instrucciones, safety_settings=seguridad_baja)
-                            )
-                            texto_examiner = examiner_response.text
-                        except Exception as e:
-                            texto_examiner = f"⚠️ *Error al calificar: {e}*"
-                        
-                    with st.chat_message("assistant", avatar="🎓"):
-                        st.markdown(texto_examiner)
+                st.session_state.examen_concluido = True
+                st.rerun()
+
+        st.divider()
+        st.caption("¿Resolviste el problema? Haz clic abajo para recibir tu calificación. No esperes a que el cliente se vaya solo.")
+        if st.button("Terminar Interacción y Calificar"):
+            st.session_state.examen_concluido = True
+            st.rerun()
+
+    # --- RESULTADOS DEL EXAMEN ---
+    if st.session_state.examen_concluido:
+        for message in st.session_state.exam_history:
+            if not message.get("hidden", False):
+                ui_role = "assistant" if message["role"] == "model" else "user"
+                with st.chat_message(ui_role):
+                    st.markdown(message["content"])
                     
-                st.session_state.exam_history.append({"role": "model", "content": texto_examiner, "hidden": False})
+        st.divider()
+        st.subheader("🛑 TIEMPO FUERA. EXAMEN CONCLUIDO.")
+        
+        if not st.session_state.examiner_feedback:
+            with st.spinner("El Examinador Maestro está calificando tu desempeño..."):
+                transcripcion = ""
+                for m in st.session_state.exam_history:
+                    if not m.get("hidden", False):
+                        rol = "Cliente" if m["role"] == "model" else "Gerente"
+                        transcripcion += f"{rol}: {m['content']}\n\n"
                 
+                prompt_examiner = f"Evalúa la siguiente interacción del examen final y entrega la calificación, veredicto y análisis según tus instrucciones:\n\n{transcripcion}"
+                
+                try:
+                    examiner_response = client.models.generate_content(
+                        model="gemini-2.5-pro",
+                        contents=prompt_examiner,
+                        config=types.GenerateContentConfig(system_instruction=examiner_instrucciones, safety_settings=seguridad_baja)
+                    )
+                    st.session_state.examiner_feedback = examiner_response.text
+                except Exception as e:
+                    st.session_state.examiner_feedback = f"⚠️ *Error al calificar: {e}*"
+
+        with st.chat_message("assistant", avatar="🎓"):
+            st.markdown(st.session_state.examiner_feedback)
+            
         st.divider()
         if st.button("Reiniciar Examen"):
             st.session_state.exam_history = []
+            st.session_state.examen_concluido = False
+            st.session_state.examiner_feedback = ""
             st.rerun()
