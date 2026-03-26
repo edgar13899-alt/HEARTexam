@@ -37,7 +37,7 @@ seguridad_baja = [
 departamentos = ["la Carnicería", "la Taquería", "la Panadería", "la Paletería", "las Cajas Principales", "el Pasillo de Abarrotes", "el área de Frutas y Verduras"]
 problemas_comunes = [
     "un producto equivocado o faltante", 
-    "un error en la cocina que causó que la orden se retrasara 20 minutos más de lo prometido", 
+    "un error en la cocina que causó que una orden previa para recoger se retrasara 20 minutos más de lo prometido", 
     "un problema de calidad o frescura genérico", 
     "un precio cobrado incorrectamente en el sistema", 
     "un derrame o accidente menor en la tienda",
@@ -77,11 +77,11 @@ with tab1:
                    "C) 'Lo siento mucho.'",
                    "D) 'Entiendo por qué está enojado.'"], index=None)
 
-    q3 = st.radio("3. Por un error de la tienda, la orden del cliente va a tardar 25 minutos MÁS de lo prometido. ¿Qué debes ofrecerle para desescalar la situación?", 
-                  ["A) Un reembolso en efectivo de $10 dólares.", 
-                   "B) Un reembolso total de su orden.", 
-                   "C) Una 'Cortesía de bajo costo' (ej. un agua fresca o un pan dulce) para calmarlo mientras espera.",
-                   "D) Un descuento del 20% en su próxima compra."], index=None)
+    q3 = st.radio("3. Es domingo a mediodía y hay una fila larguísima en la Taquería. Un cliente que lleva 15 minutos en la fila regular se queja del tiempo de espera. Por otro lado, un cliente que ordenó barbacoa para recoger a las 12:00 PM llega y le dices que su orden tardará 20 minutos más por un error en la cocina. ¿A quién de los dos le ofreces una 'Cortesía de Bajo Costo' (agua fresca/pan dulce)?", 
+                  ["A) Al de la fila regular, para que no se desespere.", 
+                   "B) A los dos, para mantener un excelente servicio al cliente.", 
+                   "C) SOLO al cliente de la orden previa retrasada, ya que la fila regular es un tiempo de espera normal de fin de semana y regalar producto por filas normales destruiría la rentabilidad.",
+                   "D) A ninguno. En La Vaquita nunca se regala nada."], index=None)
 
     q4 = st.radio("4. Un cliente exige que regañes a una cajera frente a él porque asegura que le hizo 'mala cara'. ¿Qué debes hacer?", 
                   ["A) Llamar a la cajera y reprenderla frente al cliente para que vea que tomas acción.", 
@@ -130,7 +130,7 @@ with tab2:
     Usa excusas de la vida real. Si perdiste tu recibo y te preguntan cómo pagaste, inventa si fue tarjeta o efectivo. Si dices efectivo, a menudo confúndete ligeramente con la hora exacta de la compra (ej. "creo que fue como a las 3" cuando no estás seguro). Si el gerente busca la transacción y te dice que NO aparece, te frustrarás, pero si se mantienen firmes con las reglas, eventualmente te rendirás.
 
     REGLA DE SENTIDO COMÚN: 
-    Si el gerente ofrece arreglar tu problema o te da una solución justa (o una cortesía si es demora), acéptalo. NO termines la simulación en ese mismo mensaje; espera a que el gerente se despida.
+    Si el gerente ofrece arreglar tu problema o te da una solución justa (o una cortesía si es un error o retraso de la tienda), acéptalo. NO termines la simulación en ese mismo mensaje; espera a que el gerente se despida.
 
     REGLAS DE DIFICULTAD:
     - FÁCIL: Eres educado. Si te ayudan, acéptalo rápido.
@@ -151,7 +151,7 @@ with tab2:
     2. ORDEN HEART (-20 pts): ¿Hicieron Hear, Empathize, Apologize, Resolve, Thank en orden? ¿Hicieron las preguntas investigativas en la etapa 'Hear'?
     3. VOCABULARIO DE EMPATÍA (-20 pts): ¿Usaron la palabra "lo siento" o "perdón" en la etapa de Empatía? (Deben separar validación de disculpa).
     4. ACUERDO PROHIBIDO (-20 pts): ¿Le dieron la razón al cliente ("usted tiene razón") en lugar de solo validar su emoción?
-    5. RENTABILIDAD SUPREMA (-40 pts): ESTA ES LA REGLA DE ORO. Si el gerente regaló dinero injustificadamente, ofreció una tarjeta de regalo (PROHIBIDAS), o le dio un descuento al cliente por una simple demora... REPRUÉBALOS INMEDIATAMENTE. Solo se permiten "Cortesías de bajo costo" (agua fresca/pan dulce) para demoras, o descuentos si el error de la tienda fue MAYOR (ej. comida caducada).
+    5. RENTABILIDAD SUPREMA (-40 pts): ESTA ES LA REGLA DE ORO. Si el gerente regaló dinero injustificadamente, ofreció una tarjeta de regalo (PROHIBIDAS), o le dio un descuento al cliente por un tiempo de espera normal de fila... REPRUÉBALOS INMEDIATAMENTE. Solo se permiten "Cortesías de bajo costo" (agua fresca/pan dulce) para demoras en ÓRDENES PREVIAS/ERRORES, o descuentos si el error de la tienda fue MAYOR (ej. comida caducada). NUNCA regalar cosas por filas normales.
     6. CULPAR AL EMPLEADO (-30 pts): Si la queja era sobre un empleado, ¿admitieron la culpa del empleado frente al cliente?
     7. REGLA CERO (-40 pts): Si la dificultad era Extrema (insultos) y el gerente NO puso un límite de respeto, reprueba al gerente por permitir abuso.
 
