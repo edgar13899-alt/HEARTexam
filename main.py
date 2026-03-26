@@ -35,12 +35,14 @@ seguridad_baja = [
 
 # --- BÓVEDA DE ESCENARIOS ---
 departamentos = ["la Carnicería", "la Taquería", "la Panadería", "la Paletería", "las Cajas Principales", "el Pasillo de Abarrotes", "el área de Frutas y Verduras"]
+
+# ACTUALIZADO: Forzamos a que sean quejas POST-COMPRA o de FRUSTRACIÓN REAL.
 problemas_comunes = [
-    "un producto equivocado o faltante", 
-    "un error en la cocina que causó que una orden previa para recoger se retrasara 20 minutos más de lo prometido", 
-    "un problema de calidad o frescura genérico", 
-    "un precio cobrado incorrectamente en el sistema", 
-    "un empleado que supuestamente le dio un mal trato, lo ignoró o le habló con mala actitud",
+    "un cliente que YA PAGÓ y llegó a su casa, pero tuvo que regresar muy molesto porque descubrió que le dieron el producto equivocado o le falta un artículo en sus bolsas", 
+    "un error en la cocina que causó que una orden previa para recoger se retrasara 20 minutos más de lo prometido, y el cliente está impaciente", 
+    "un cliente que YA PAGÓ y revisando su recibo nota que se le cobró de más por un error en el sistema o un letrero confuso, exigiendo la diferencia", 
+    "un cliente frustrado que intenta devolver un producto básico (como pan o fruta) argumentando que salió de mala calidad o echado a perder",
+    "un empleado que supuestamente le dio un mal trato, lo ignoró o le habló con mala actitud al cliente",
     "un cliente que quiere cambiar un producto básico y cerrado (como unas papas o refresco) pero no tiene el recibo de compra"
 ]
 pesadillas_la_vaquita = [
