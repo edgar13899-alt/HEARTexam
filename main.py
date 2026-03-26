@@ -36,7 +36,6 @@ seguridad_baja = [
 # --- BÓVEDA DE ESCENARIOS ---
 departamentos = ["la Carnicería", "la Taquería", "la Panadería", "la Paletería", "las Cajas Principales", "el Pasillo de Abarrotes", "el área de Frutas y Verduras"]
 
-# ACTUALIZADO: Forzamos a que sean quejas POST-COMPRA o de FRUSTRACIÓN REAL.
 problemas_comunes = [
     "un cliente que YA PAGÓ y llegó a su casa, pero tuvo que regresar muy molesto porque descubrió que le dieron el producto equivocado o le falta un artículo en sus bolsas", 
     "un error en la cocina que causó que una orden previa para recoger se retrasara 20 minutos más de lo prometido, y el cliente está impaciente", 
@@ -187,7 +186,8 @@ with tab2:
             if difficulty_exam in ["Fácil", "Medio"]:
                 depto_elegido = random.choice(departamentos)
                 problema_elegido = random.choice(problemas_comunes)
-                descripcion_problema = f"El escenario DEBE ocurrir en {depto_elegido}. La queja trata sobre {problema_elegido}."
+                # EL ARREGLO: Instrucciones estrictas de ubicación
+                descripcion_problema = f"La queja trata sobre {problema_elegido}. FÍSICAMENTE: El cliente se acerca directamente a ti (el gerente) en las Cajas Principales / Servicio al Cliente (o en el mostrador de {depto_elegido} si es una orden activa). NUNCA pongas al cliente deambulando por los pasillos si ya pagó o viene a hacer un reclamo post-compra."
             else:
                 pesadilla_elegida = random.choice(pesadillas_la_vaquita)
                 descripcion_problema = f"La queja principal DEBE ser exactamente esta: {pesadilla_elegida}."
