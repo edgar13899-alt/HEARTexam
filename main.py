@@ -27,21 +27,23 @@ if not api_key:
 
 client = genai.Client(api_key=api_key)
 
+# Reducimos los filtros de seguridad para permitir simulaciones de clientes enojados
 seguridad_baja = [
     types.SafetySetting(category="HARM_CATEGORY_HARASSMENT", threshold="BLOCK_ONLY_HIGH"),
     types.SafetySetting(category="HARM_CATEGORY_HATE_SPEECH", threshold="BLOCK_ONLY_HIGH"),
     types.SafetySetting(category="HARM_CATEGORY_DANGEROUS_CONTENT", threshold="BLOCK_ONLY_HIGH"),
 ]
 
-# --- BÓVEDA DE ESCENARIOS ---
+# --- BÓVEDA DE ESCENARIOS (LA MISMA QUE EL ENTRENAMIENTO) ---
 departamentos = ["la Carnicería", "la Taquería", "la Panadería", "la Paletería", "las Cajas Principales", "el Pasillo de Abarrotes", "el área de Frutas y Verduras"]
 
 problemas_comunes = [
     "un cliente que YA PAGÓ y llegó a su casa, pero tuvo que regresar muy molesto porque descubrió que le dieron el producto equivocado o le falta un artículo en sus bolsas", 
     "un error en la cocina que causó que una orden previa para recoger se retrasara 20 minutos más de lo prometido, y el cliente está impaciente", 
     "un cliente que YA PAGÓ y revisando su recibo nota que se le cobró de más por un error en el sistema o un letrero confuso, exigiendo la diferencia", 
-    "un cliente frustrado que intenta devolver un producto argumentando que salió de mala calidad o echado a perder, PERO NO TIENE SU RECIBO DE COMPRA",
-    "un empleado que supuestamente le dio un mal trato, lo ignoró o le habló con mala actitud al cliente"
+    "un cliente frustrado que intenta devolver un producto básico (como pan o fruta) argumentando que salió de mala calidad o echado a perder",
+    "un empleado que supuestamente le dio un mal trato, lo ignoró o le habló con mala actitud al cliente",
+    "un cliente que quiere cambiar un producto básico y cerrado (como unas papas o refresco) pero no tiene el recibo de compra"
 ]
 
 errores_cliente = [
@@ -51,12 +53,16 @@ errores_cliente = [
 ]
 
 pesadillas_la_vaquita = [
+    "un pago que aparece como 'pendiente' en la app del banco del cliente porque la terminal falló, y el cliente se niega rotundamente a volver a pasar la tarjeta por miedo a que se le cobre doble",
     "un cliente que recoge un pastel de cumpleaños personalizado en la panadería y exige un reembolso completo más el pastel gratis porque el nombre está mal escrito, a pesar de que el gerente tiene la hoja de pedido donde el cliente mismo escribió mal el nombre",
     "un cliente furioso que, después de recibir su pedido en el mostrador de la carnicería, hace un escándalo al enterarse de que no hay caja registradora ahí y se niega a hacer una segunda fila en las cajas principales para pagar",
-    "un cliente que le pide al carnicero que le corte de manera especial 15 libras de una carne cara. El carnicero la corta, la empaqueta, y cuando el cliente ve el precio impreso, dice 'siempre no lo quiero' y lo deja ahí, dejando a la tienda con producto mermado.",
-    "una mujer que quiere devolver una sopa de pollo de la taquería argumentando agresivamente que está 'demasiado picante', a pesar de que la receta de la tienda NO lleva picante.",
-    "un cliente se queja furioso de que un empleado fue grosero al pedirle ayuda. Exige que lo despidan frente a él, PERO el gerente sabe que el familiar de ese empleado acaba de fallecer.",
-    "un cliente que llega con $50 dólares en cortes caros de carne, no tiene ningún recibo de compra, y exige agresivamente un reembolso en efectivo, amenazando con hacer un escándalo."
+    "un cliente que tiene un carrito lleno con $200 dólares en mandado, pero el sistema de EBT/tarjetas de beneficios del gobierno se cae a nivel nacional. No tiene otra forma de pagar y se niega a dejar el carrito.",
+    "un cliente que trae un folleto de ofertas de otro mercado hispano (como La Michoacana) y exige a gritos que le igualen el precio en una venta masiva de fajitas que la tienda físicamente no puede permitirse igualar.",
+    "un cliente que le pide al carnicero que le corte de manera especial 15 libras de una carne cara. El carnicero la corta, la empaqueta, y cuando el cliente ve el precio impreso, dice 'siempre no lo quiero' y lo deja ahí, dejando a la tienda con producto mermado que no puede regresar a la vitrina.",
+    "una mujer que quiere devolver una sopa de pollo de la taquería argumentando agresivamente que está 'demasiado picante', a pesar de que la receta de la tienda NO lleva absolutamente nada de picante y nadie más se ha quejado de eso jamás.",
+    "un cliente se queja furioso de que un empleado fue grosero al pedirle ayuda (lo ignoró, no hizo contacto visual y solo señaló con el dedo). El cliente exige que lo despidan o lo castiguen frente a él, PERO el gerente sabe que el familiar de ese empleado acaba de fallecer, está pasando por un duelo terrible, y solo vino a trabajar porque necesitaba el dinero.",
+    "un cliente acusa a una cajera de darle un pésimo servicio y aventarle el recibo, exigiendo hablar con el gerente para que la regañe frente a todos, PERO el gerente sabe que la cajera acaba de ser insultada cruelmente por el cliente anterior y está al borde de las lágrimas tratando de mantener la compostura.",
+    "un cliente que llega con $50 dólares en cortes caros de carne, no tiene ningún recibo de compra, y exige agresivamente un reembolso en efectivo, amenazando con hacer un escándalo monumental si el gerente se niega a darle el dinero."
 ]
 
 st.title("📝 Examen Final de Gerencia")
@@ -71,43 +77,43 @@ with tab1:
     st.header("Examen de Políticas y Procedimientos")
     st.write("Responde las siguientes preguntas basadas en el manual de entrenamiento.")
 
-    q1 = st.radio("1. Un cliente se queja con groserías e insultos personales hacia ti por un error en su ticket. ¿Cuál es tu primera acción?", 
-                  ["A) Ofrecerle una disculpa inmediata para calmarlo.", 
-                   "B) Aplicar la Regla Cero: Establecer un límite de respeto firme o pedirle que se retire.", 
-                   "C) Darle un descuento del 10% por las molestias.",
-                   "D) Escuchar en silencio hasta que termine de insultar."], index=None)
+    q1 = st.radio("1. Un cliente te está contando furioso que su pedido salió mal. ¿Cuál es tu trabajo en la etapa 'Hear' (Escuchar)?", 
+                  ["A) Hacerle preguntas de inmediato para saber a qué hora compró el producto.", 
+                   "B) Guardar silencio absoluto, hacer contacto visual y dejar que termine de desahogarse sin interrumpir.", 
+                   "C) Decirle que entiendes su molestia para que se calme más rápido.",
+                   "D) Empezar a buscar el recibo en el sistema mientras habla."], index=None)
 
-    q2 = st.radio("2. Estás en la etapa 'E' (Empatizar) del método HEART. ¿Qué palabra o frase tienes ESTRICTAMENTE PROHIBIDO usar en este paso?", 
-                  ["A) 'Comprendo su frustración.'", 
-                   "B) 'Me imagino lo molesto que debe ser.'", 
-                   "C) 'Lo siento mucho.'",
-                   "D) 'Entiendo por qué está enojado.'"], index=None)
+    q2 = st.radio("2. Un cliente se equivocó y agarró papas picantes en lugar de regulares. Quiere cambiarlas y está a la defensiva. ¿Cuál es la manera correcta de manejar esto?", 
+                  ["A) Usar Empatía Neutral ('Entiendo la confusión') y SALTARSE la disculpa para no admitir culpa de la tienda.", 
+                   "B) Decir 'Siento mucho la confusión' y cambiarle las papas.", 
+                   "C) Decirle que él tuvo la culpa por no leer bien, pero que se las cambiarás esta vez.",
+                   "D) Darle un descuento del 10% por las molestias."], index=None)
 
-    q3 = st.radio("3. Es domingo a mediodía y hay una fila larguísima en la Taquería. Un cliente que lleva 15 minutos en la fila regular se queja del tiempo de espera. Por otro lado, un cliente que ordenó barbacoa para recoger a las 12:00 PM llega y le dices que su orden tardará 20 minutos más por un error en la cocina. ¿A quién de los dos le ofreces una 'Cortesía de Bajo Costo' (agua fresca/pan dulce)?", 
-                  ["A) Al de la fila regular, para que no se desespere.", 
-                   "B) A los dos, para mantener un excelente servicio al cliente.", 
-                   "C) SOLO al cliente de la orden previa retrasada, ya que la fila regular es un tiempo de espera normal de fin de semana y regalar producto por filas normales destruiría la rentabilidad.",
-                   "D) A ninguno. En La Vaquita nunca se regala nada."], index=None)
+    q3 = st.radio("3. Es domingo y la tienda está llenísima. Un cliente en la fila regular se queja amargamente de que lleva 15 minutos esperando. Por otro lado, un cliente con una orden previa llega y le dices que su comida tardará por un error de la cocina. ¿A quién le ofreces una Cortesía (agua/pan dulce)?", 
+                  ["A) A los dos, para mantener el buen servicio.", 
+                   "B) Al de la fila regular, para que no haga un escándalo frente a los demás.", 
+                   "C) A NINGUNO. En La Vaquita nunca regalamos producto.",
+                   "D) SOLO al de la orden retrasada por error de la tienda. Regalar producto por una fila normal destruye la rentabilidad."], index=None)
 
-    q4 = st.radio("4. Un cliente exige que regañes a una cajera frente a él porque asegura que le hizo 'mala cara'. ¿Qué debes hacer?", 
-                  ["A) Llamar a la cajera y reprenderla frente al cliente para que vea que tomas acción.", 
-                   "B) Decirle al cliente 'usted tiene toda la razón, ella siempre hace eso'.", 
-                   "C) Darle la razón al cliente y ofrecerle mercancía gratis.",
-                   "D) Validar la emoción del cliente ('Entiendo que se sintió ignorado') y prometer una investigación interna sin admitir la culpa del empleado públicamente."], index=None)
+    q4 = st.radio("4. Un cliente exige que despidas a una cajera porque dice que le hizo 'mala cara'. ¿Qué haces en la etapa Apologize (A)?", 
+                  ["A) Te disculpas por el mal comportamiento de la cajera y prometes regañarla.", 
+                   "B) Le das la razón al cliente para que se calme.", 
+                   "C) Te disculpas SOLO por la 'mala experiencia' del cliente, sin admitir la culpa del empleado antes de investigar.",
+                   "D) No te disculpas porque no fue tu culpa."], index=None)
 
-    q5 = st.radio("5. Un cliente quiere devolver un artículo pero no tiene recibo y pagó en efectivo. ¿Cuál es el procedimiento correcto?", 
-                  ["A) Decirle inmediatamente 'sin recibo no hay devolución' para no perder tiempo.", 
-                   "B) Hacer preguntas para intentar buscar la transacción en el sistema POS, sabiendo que el cliente suele equivocarse con la hora. Si la búsqueda falla, usar el sistema como escudo para negar el reembolso.", 
-                   "C) Darle el reembolso de todas formas si hace mucho escándalo para que no asuste a otros clientes.",
-                   "D) Ofrecerle un descuento de 50% en su próxima compra como compensación."], index=None)
+    q5 = st.radio("5. Un cliente te está insultando con lenguaje vulgar porque la terminal rechazó su tarjeta. ¿Qué haces?", 
+                  ["A) Tratas de ignorar los insultos y te enfocas en cobrarle para que se vaya rápido.", 
+                   "B) Le regalas la compra para evitar un escándalo.", 
+                   "C) Te pones a gritarle igual para defender el honor de la tienda.",
+                   "D) Aplicas la Regla Cero: Estableces un límite de respeto inmediatamente y, si continúa, le pides que abandone la tienda."], index=None)
 
     if st.button("Calificar Teoría"):
         score = 0
         if q1 and q1.startswith("B"): score += 20
-        if q2 and q2.startswith("C"): score += 20
-        if q3 and q3.startswith("C"): score += 20
-        if q4 and q4.startswith("D"): score += 20
-        if q5 and q5.startswith("B"): score += 20
+        if q2 and q2.startswith("A"): score += 20
+        if q3 and q3.startswith("D"): score += 20
+        if q4 and q4.startswith("C"): score += 20
+        if q5 and q5.startswith("D"): score += 20
 
         st.divider()
         if score == 100:
@@ -115,14 +121,14 @@ with tab1:
         elif score >= 80:
             st.warning(f"Calificación: {score}/100. Casi perfecto. Revisa tus errores antes de la práctica.")
         else:
-            st.error(f"Calificación: {score}/100. Reprobado. Necesitas volver a leer el portal de entrenamiento.")
+            st.error(f"Calificación: {score}/100. Reprobado. Necesitas volver a leer el manual.")
 
 # ==========================================
 # PARTE 2: EXAMEN PRÁCTICO (Simulador)
 # ==========================================
 with tab2:
     st.header("El Examen Final: Prueba Práctica")
-    st.write("En este examen **NO habrá un tutor ayudándote**. Tendrás que manejar al cliente tú solo usando el método HEART de principio a fin. Al terminar, presiona el botón 'Terminar y Calificar' para recibir tu calificación.")
+    st.write("En este examen **NO habrá un tutor ayudándote**. Tendrás que manejar al cliente tú solo usando el método HEART y las políticas de la tienda. Al terminar, presiona 'Terminar y Calificar'.")
 
     if "exam_history" not in st.session_state:
         st.session_state.exam_history = []
@@ -130,57 +136,52 @@ with tab2:
         st.session_state.examen_concluido = False
     if "examiner_feedback" not in st.session_state:
         st.session_state.examiner_feedback = ""
-    if "api_error" not in st.session_state:
-        st.session_state.api_error = False
 
     actor_instrucciones = """
     Eres el Actor del examen final interactivo en La Vaquita Meat Market. 
     TU ÚNICO OBJETIVO: Actuar como un cliente realista según el nivel de dificultad. TÚ NO EVALÚAS AL GERENTE. 
 
-    REGLAS DE FORMATO (MUY IMPORTANTE):
-    1. Para tu PRIMER mensaje, debes separar el contexto objetivo de lo que dices en voz alta. Usa este formato:
+    REGLAS DE FORMATO:
+    1. Primer mensaje:
     **Escenario:** [Describe tu lenguaje corporal estrictamente en TERCERA PERSONA].
     **Cliente:** "[Escribe tu queja inicial en voz alta]".
-    
-    2. En el resto de la conversación, SOLO escribe lo que dices en voz alta. 
+    2. El resto de la conversación es solo tu diálogo. 
 
-    NUEVA REGLA DEL GAME MASTER (CÁMARAS Y SISTEMA): 
-    Si el gerente te dice que va a revisar las cámaras, el recibo o el sistema POS, debes salir brevemente de tu personaje para darle el resultado de su búsqueda. 
-    Añade una línea al principio de tu respuesta que diga: "[Sistema: Revisa la cámara/sistema y efectivamente encuentras el recibo / la transacción]". Luego, responde como cliente (ej. "¿Pudo encontrarlo?"). Si la dificultad es Difícil/Extrema, a veces el sistema NO encuentra la transacción para hacer la situación más tensa.
+    REGLA DEL GAME MASTER: 
+    Si el gerente va a revisar las cámaras, recibo o sistema POS, sal de personaje y dale el resultado: "[Sistema: Efectivamente encuentras la transacción]". Luego responde como cliente. En dificultad Difícil/Extrema, a veces el sistema NO encuentra nada.
 
-    DETALLES CONTEXTUALES UNIVERSALES: 
-    Usa excusas de la vida real. Si perdiste tu recibo y te preguntan cómo pagaste, inventa si fue tarjeta o efectivo. Si dices efectivo, a menudo confúndete ligeramente con la hora exacta de la compra. Si es un error Tuyo (ej. agarrar mal producto), muéstrate un poco a la defensiva o apenado para salvar tu orgullo. Si el gerente busca la transacción y te dice que NO aparece, te frustrarás, pero si se mantienen firmes con las reglas, eventualmente te rendirás.
+    DETALLES CONTEXTUALES: Usa excusas reales. Si el gerente ofrece soluciones lógicas, acéptalas con alivio. Si te dan una cortesía (agua/pan), relaja tu actitud.
 
     REGLAS DE DIFICULTAD:
-    - FÁCIL: Eres educado. Si te ayudan, acéptalo rápido.
-    - MEDIO: Estás frustrado pero eres razonable.
-    - DIFÍCIL: Eres manipulador, pasivo-agresivo.
-    - EXTREMO (ABUSIVO): Eres furioso y usas insultos. Tu objetivo es ver si el gerente aplica la Regla Cero.
+    - FÁCIL: Educado.
+    - MEDIO: Frustrado pero razonable. Si te ayudan, acepta.
+    - DIFÍCIL: Pasivo-agresivo. Si son firmes, te rindes.
+    - EXTREMO (ABUSIVO): Furioso y usas insultos. Tu objetivo es ver si el gerente aplica la Regla Cero.
 
-    CÓMO TERMINAR: Escribe "FIN DE LA SIMULACIÓN" en una línea nueva si el gerente completó la interacción (te dio la solución/se despidió) o si te marcan un límite estricto y te vas.
+    CÓMO TERMINAR: Escribe "FIN DE LA SIMULACIÓN" en una línea nueva si el gerente completó la interacción, si te pidió que te fueras, o si llegan a 4 turnos.
     """
 
     examiner_instrucciones = """
     Eres el EXAMINADOR FINAL IMPLACABLE de La Vaquita Meat Market.
     
-    Tu trabajo es calificar la transcripción de la simulación del gerente de 0 a 100 y dar un veredicto de APROBADO o REPROBADO.
+    Tu trabajo es calificar la transcripción de la simulación del gerente de 0 a 100 y dar un veredicto de APROBADO o REPROBADO. Eres objetivo, estricto y basas tu calificación enteramente en las políticas establecidas.
 
-    REGLAS DE CALIFICACIÓN (Resta puntos por cada infracción):
-    1. PROTOCOLO SIN RECIBO (-30 pts): Si no hay recibo, ¿preguntó el método de pago e intentó buscar en el POS? Si negaron el reembolso inmediatamente, resta puntos. Si regaló dinero sin encontrar la transacción, REPRUÉBALO.
-    2. QUEJAS SOBRE EMPLEADOS (-30 pts): Si la queja es sobre un empleado, el gerente DEBIÓ escuchar en silencio en (H), disculparse SOLO por la experiencia en (A) sin admitir culpa del empleado, y hacer preguntas de investigación en (R) prometiendo revisión interna. Si el gerente interrogó en (H) o admitió la culpa del empleado en (A), RESTA PUNTOS FUERTEMENTE.
-    3. LA TRAMPA DE LA DISCULPA / ERROR DEL CLIENTE (-30 pts): Si el cliente causó el problema (ej. agarró mal el producto, leyó mal el letrero), el gerente NO debe disculparse ("lo siento", "siento la confusión"). También resta puntos si el gerente culpó a la tienda ("nuestros letreros están muy juntos") o asumió el estado del cliente ("estaba de prisa"). Debieron usar "Empatía Neutral" ("Entiendo la confusión, a todos nos pasa") y saltar a Resolve.
-    4. ORDEN HEART (-20 pts): ¿Hicieron H, E, A, R, T? (Excluyendo la A si es error del cliente).
-    5. RENTABILIDAD SUPREMA (-40 pts): CERO descuentos injustificados. CERO regalos por filas normales.
-    6. REGLA CERO (-40 pts): Si hay insultos, deben poner límites.
+    REGLAS DE CALIFICACIÓN Y PENALIZACIONES (Empiezan con 100 puntos):
+    1. LA REGLA DEL SIMULADOR DE TEXTO (SILENCIO EN 'H'): Dado que es un simulador de texto, la etapa H ocurre implícitamente cuando el gerente lee el primer mensaje. ESTÁ ESTRICTAMENTE PROHIBIDO penalizar al gerente por no escribir en la etapa Hear. 
+    2. PREGUNTAS EN RESOLVE (-20 pts): Si el gerente hizo preguntas de investigación (recibos, qué dijo el empleado, etc.) inmediatamente después del primer mensaje del cliente, penalízalos. Las preguntas SOLO deben hacerse en Resolve (R), después de la Empatía (E).
+    3. LA TRAMPA DE LA DISCULPA / ERROR DEL CLIENTE (-30 pts): Si el cliente causó el problema (ej. agarró mal el producto), el gerente NO debe disculparse. Si dijeron "lo siento", RESTA PUNTOS. Debieron usar Empatía Neutral.
+    4. QUEJAS SOBRE EMPLEADOS (-30 pts): Si la queja fue sobre un empleado y el gerente admitió la culpa del empleado frente al cliente, RESTA PUNTOS. Debieron disculparse solo por la "experiencia".
+    5. RENTABILIDAD Y CORTESÍAS (-40 pts): Si regalaron producto, dinero o descuentos por una "experiencia normal" (filas, tienda llena), REPRUÉBALOS. Cortesías son SOLO para errores de la tienda. Regalar "Gift Cards" es un reprobado automático.
+    6. REGLA CERO (-40 pts): Si el cliente usó insultos y el gerente no puso un límite firme, REPRUÉBALOS.
 
     FORMATO DE RESPUESTA:
     1. CALIFICACIÓN FINAL: [0-100]
     2. VEREDICTO: [APROBADO (80+) / REPROBADO]
-    3. ANÁLISIS DETALLADO: Explica exactamente qué reglas rompieron o cuáles aplicaron a la perfección. Da ejemplos de lo que escribieron.
+    3. ANÁLISIS DETALLADO: Explica de manera directa por qué perdieron puntos o por qué fue perfecto. Analiza su ejecución de H-E-A-R-T y las políticas de la tienda.
     """
 
     if len(st.session_state.exam_history) == 0 and not st.session_state.examen_concluido:
-        st.info("Selecciona la dificultad asignada para tu examen de esta semana.")
+        st.info("Selecciona el nivel de tu examen.")
         difficulty_exam = st.selectbox(
             "Nivel del Examen:",
             ["Fácil", "Medio", "Difícil", "Extremo (Abusivo)", "Casos Especiales (Errores del Cliente)"]
@@ -191,15 +192,15 @@ with tab2:
             if difficulty_exam in ["Fácil", "Medio"]:
                 depto_elegido = random.choice(departamentos)
                 problema_elegido = random.choice(problemas_comunes)
-                descripcion_problema = f"La queja trata sobre {problema_elegido}. FÍSICAMENTE: El cliente se acerca a ti en las Cajas Principales."
+                descripcion_problema = f"El escenario ocurre en {depto_elegido}. Trata sobre {problema_elegido}."
             elif difficulty_exam == "Casos Especiales (Errores del Cliente)":
                 problema_elegido = random.choice(errores_cliente)
-                descripcion_problema = f"ESTE ES UN CASO ESPECIAL DE ERROR DEL CLIENTE. La situación es: {problema_elegido}. FÍSICAMENTE: El cliente se acerca a ti en las Cajas Principales."
+                descripcion_problema = f"CASO ESPECIAL DE ERROR DEL CLIENTE. Situación: {problema_elegido}."
             else:
                 pesadilla_elegida = random.choice(pesadillas_la_vaquita)
                 descripcion_problema = f"La queja principal DEBE ser exactamente esta: {pesadilla_elegida}."
 
-            hidden_prompt = f"Inicia el examen final. Complejidad {difficulty_exam}. {descripcion_problema}. RECUERDA: La dificultad define la gravedad inicial y tu actitud. ASEGÚRATE de incluir la pista de lenguaje corporal en TERCERA PERSONA en la sección Escenario, mencionando explícitamente si hay otros clientes cerca o no, y DEJAR UN SALTO DE LÍNEA ANTES DEL CLIENTE."
+            hidden_prompt = f"Inicia el examen. Complejidad {difficulty_exam}. {descripcion_problema}. ASEGÚRATE de incluir la pista en tercera persona en Escenario, dejar salto de línea y luego hablar como Cliente."
             
             with st.spinner("Generando escenario de examen..."):
                 try:
@@ -213,7 +214,7 @@ with tab2:
                     st.session_state.exam_history.append({"role": "model", "content": texto_seguro, "hidden": False})
                     st.rerun()
                 except Exception as e:
-                    st.error("⚠️ Los servidores de Google están experimentando alta demanda (Error 503). Por favor, intenta iniciar el examen de nuevo en unos segundos.")
+                    st.error("⚠️ Servidor ocupado. Intenta de nuevo.")
 
     elif not st.session_state.examen_concluido:
         chat_container = st.container()
@@ -259,10 +260,10 @@ with tab2:
                         st.rerun()
                 except Exception as e:
                     st.session_state.exam_history.pop() 
-                    st.error("⚠️ El servidor de Google tuvo un problema de conexión (Error 503). Por favor, vuelve a enviar tu mensaje.")
+                    st.error("⚠️ Servidor ocupado. Vuelve a enviar.")
 
         st.divider()
-        st.caption("¿Resolviste el problema? Haz clic abajo para recibir tu calificación. No esperes a que el cliente se vaya solo.")
+        st.caption("¿Resolviste el problema? Haz clic abajo para recibir tu calificación.")
         if st.button("Terminar Interacción y Calificar"):
             st.session_state.examen_concluido = True
             st.rerun()
@@ -278,14 +279,14 @@ with tab2:
         st.subheader("🛑 TIEMPO FUERA. EXAMEN CONCLUIDO.")
         
         if not st.session_state.examiner_feedback:
-            with st.spinner("El Examinador Maestro está calificando tu desempeño..."):
+            with st.spinner("El Examinador Implacable está calificando tu desempeño..."):
                 transcripcion = ""
                 for m in st.session_state.exam_history:
                     if not m.get("hidden", False):
                         rol = "Cliente" if m["role"] == "model" else "Gerente"
                         transcripcion += f"{rol}: {m['content']}\n\n"
                 
-                prompt_examiner = f"Evalúa la siguiente interacción del examen final y entrega la calificación, veredicto y análisis según tus instrucciones:\n\n{transcripcion}"
+                prompt_examiner = f"Evalúa la siguiente interacción del examen final y entrega la calificación, veredicto y análisis según tus instrucciones estrictas:\n\n{transcripcion}"
                 
                 try:
                     examiner_response = client.models.generate_content(
@@ -294,24 +295,15 @@ with tab2:
                         config=types.GenerateContentConfig(system_instruction=examiner_instrucciones, safety_settings=seguridad_baja)
                     )
                     st.session_state.examiner_feedback = examiner_response.text
-                    st.session_state.api_error = False
                 except Exception as e:
-                    st.session_state.api_error = True
+                    st.session_state.examiner_feedback = f"⚠️ *Error exacto de Google:* {e}"
 
-        if st.session_state.api_error:
-            st.error("⚠️ Los servidores de Google están experimentando alta demanda (Error 503). No hemos podido generar tu calificación.")
-            if st.button("🔄 Reintentar Calificación"):
-                st.session_state.examiner_feedback = ""
-                st.session_state.api_error = False
-                st.rerun()
-        else:
-            with st.chat_message("assistant", avatar="🎓"):
-                st.markdown(st.session_state.examiner_feedback)
-                
-            st.divider()
-            if st.button("Reiniciar Examen"):
-                st.session_state.exam_history = []
-                st.session_state.examen_concluido = False
-                st.session_state.examiner_feedback = ""
-                st.session_state.api_error = False
-                st.rerun()
+        with st.chat_message("assistant", avatar="🎓"):
+            st.markdown(st.session_state.examiner_feedback)
+            
+        st.divider()
+        if st.button("Reiniciar Examen"):
+            st.session_state.exam_history = []
+            st.session_state.examen_concluido = False
+            st.session_state.examiner_feedback = ""
+            st.rerun()
