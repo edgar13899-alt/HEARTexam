@@ -68,60 +68,138 @@ pesadillas_la_vaquita = [
 st.title("📝 Examen Final de Gerencia")
 st.write("Demuestra que dominas las políticas de La Vaquita Meat Market y el Método HEART.")
 
+st.info("Selecciona el Nivel de tu Examen. Esto definirá tanto las preguntas teóricas como la dificultad de tu simulación práctica.")
+difficulty_exam = st.selectbox(
+    "Nivel del Examen:",
+    ["Fácil", "Medio", "Difícil", "Extremo (Abusivo)", "Casos Especiales (Errores del Cliente)"]
+)
+st.divider()
+
 tab1, tab2 = st.tabs(["📚 Parte 1: Examen Teórico", "🥩 Parte 2: Examen Práctico (Simulación)"])
 
 # ==========================================
-# PARTE 1: EXAMEN TEÓRICO (Multiple Choice)
+# PARTE 1: EXAMEN TEÓRICO (Multiple Choice Dinámico)
 # ==========================================
 with tab1:
     st.header("Examen de Políticas y Procedimientos")
-    st.write("Responde las siguientes preguntas basadas en el manual de entrenamiento.")
+    st.write(f"Preguntas para el nivel: **{difficulty_exam}**")
 
-    q1 = st.radio("1. Un cliente te está contando furioso que su pedido salió mal. ¿Cuál es tu trabajo en la etapa 'Hear' (Escuchar)?", 
-                  ["A) Hacerle preguntas de inmediato para saber a qué hora compró el producto.", 
-                   "B) Guardar silencio absoluto, hacer contacto visual y dejar que termine de desahogarse sin interrumpir.", 
-                   "C) Decirle que entiendes su molestia para que se calme más rápido.",
-                   "D) Empezar a buscar el recibo en el sistema mientras habla."], index=None)
+    if difficulty_exam == "Fácil":
+        q1 = st.radio("1. ¿En cuál de las siguientes situaciones deberías usar el método HEART?", 
+                      ["A) Cuando un cliente regular está pagando sus compras felizmente en la caja.", 
+                       "B) Cuando un cliente molesto y frustrado exige hablar contigo porque le dieron un pedido equivocado.", 
+                       "C) Cuando un empleado te pide sus vacaciones.",
+                       "D) Cuando un proveedor llega a entregar mercancía por la puerta trasera."], index=None, key="e1")
 
-    q2 = st.radio("2. Un cliente se equivocó y agarró papas picantes en lugar de regulares. Quiere cambiarlas y está a la defensiva. ¿Cuál es la manera correcta de manejar esto?", 
-                  ["A) Usar Empatía Neutral ('Entiendo la confusión') y SALTARSE la disculpa para no admitir culpa de la tienda.", 
-                   "B) Decir 'Siento mucho la confusión' y cambiarle las papas.", 
-                   "C) Decirle que él tuvo la culpa por no leer bien, pero que se las cambiarás esta vez.",
-                   "D) Darle un descuento del 10% por las molestias."], index=None)
+        q2 = st.radio("2. ¿Qué significa la letra 'H' (Hear) en el método de La Vaquita y cuál es tu trabajo en este paso?", 
+                      ["A) Significa interrogar al cliente inmediatamente para saber qué pasó.", 
+                       "B) Significa 'Escucha Silenciosa': Debes guardar silencio absoluto y dejar que el cliente se desahogue sin interrumpirlo.", 
+                       "C) Significa explicarle las políticas de la tienda al cliente en cuanto empiece a hablar."], index=None, key="e2")
 
-    q3 = st.radio("3. Es domingo y la tienda está llenísima. Un cliente en la fila regular se queja amargamente de que lleva 15 minutos esperando. Por otro lado, un cliente con una orden previa llega y le dices que su comida tardará por un error de la cocina. ¿A quién le ofreces una Cortesía (agua/pan dulce)?", 
-                  ["A) A los dos, para mantener el buen servicio.", 
-                   "B) Al de la fila regular, para que no haga un escándalo frente a los demás.", 
-                   "C) A NINGUNO. En La Vaquita nunca regalamos producto.",
-                   "D) SOLO al de la orden retrasada por error de la tienda. Regalar producto por una fila normal destruye la rentabilidad."], index=None)
+        q3 = st.radio("3. ¿Cuál es el propósito principal de la etapa 'E' (Empatizar)?", 
+                      ["A) Validar las emociones del cliente (ej. 'Entiendo su frustración') para conectar con ellos.", 
+                       "B) Darle la razón al cliente en absolutamente todo lo que diga.", 
+                       "C) Ofrecer una disculpa por el error."], index=None, key="e3")
 
-    q4 = st.radio("4. Un cliente exige que despidas a una cajera porque dice que le hizo 'mala cara'. ¿Qué haces en la etapa Apologize (A)?", 
-                  ["A) Te disculpas por el mal comportamiento de la cajera y prometes regañarla.", 
-                   "B) Le das la razón al cliente para que se calme.", 
-                   "C) Te disculpas SOLO por la 'mala experiencia' del cliente, sin admitir la culpa del empleado antes de investigar.",
-                   "D) No te disculpas porque no fue tu culpa."], index=None)
+        q4 = st.radio("4. En la etapa 'A' (Apologize), ¿por qué ofrecemos una disculpa cuando la tienda comete un error real?", 
+                      ["A) Para que el cliente se vaya más rápido.", 
+                       "B) Para asumir la responsabilidad profesionalmente en nombre de la empresa.", 
+                       "C) Para echarle la culpa al cajero o al cocinero frente al cliente."], index=None, key="e4")
 
-    q5 = st.radio("5. Un cliente te está insultando con lenguaje vulgar porque la terminal rechazó su tarjeta. ¿Qué haces?", 
-                  ["A) Tratas de ignorar los insultos y te enfocas en cobrarle para que se vaya rápido.", 
-                   "B) Le regalas la compra para evitar un escándalo.", 
-                   "C) Te pones a gritarle igual para defender el honor de la tienda.",
-                   "D) Aplicas la Regla Cero: Estableces un límite de respeto inmediatamente y, si continúa, le pides que abandone la tienda."], index=None)
+        q5 = st.radio("5. ¿Cuál es la regla básica para usar una 'Cortesía de Bajo Costo' (como regalar un agua fresca o un pan dulce)?", 
+                      ["A) Se debe regalar a cualquier cliente que lo pida.", 
+                       "B) Se debe usar a diario porque la tienda siempre está muy llena.", 
+                       "C) Es EXCLUSIVAMENTE para calmar a clientes que sufrieron una demora o inconveniente causado por un error comprobado de la tienda."], index=None, key="e5")
 
-    if st.button("Calificar Teoría"):
-        score = 0
-        if q1 and q1.startswith("B"): score += 20
-        if q2 and q2.startswith("A"): score += 20
-        if q3 and q3.startswith("D"): score += 20
-        if q4 and q4.startswith("C"): score += 20
-        if q5 and q5.startswith("D"): score += 20
+        if st.button("Calificar Teoría (Fácil)"):
+            score = 0
+            if q1 and q1.startswith("B"): score += 20
+            if q2 and q2.startswith("B"): score += 20
+            if q3 and q3.startswith("A"): score += 20
+            if q4 and q4.startswith("B"): score += 20
+            if q5 and q5.startswith("C"): score += 20
+            st.divider()
+            if score == 100: st.success(f"¡Calificación: {score}/100! Excelente. Ve a la Parte 2.")
+            elif score >= 80: st.warning(f"Calificación: {score}/100. Casi perfecto.")
+            else: st.error(f"Calificación: {score}/100. Necesitas repasar el manual básico.")
 
-        st.divider()
-        if score == 100:
-            st.success(f"¡Calificación: {score}/100! Eres un maestro de las políticas. Ve a la Parte 2.")
-        elif score >= 80:
-            st.warning(f"Calificación: {score}/100. Casi perfecto. Revisa tus errores antes de la práctica.")
-        else:
-            st.error(f"Calificación: {score}/100. Reprobado. Necesitas volver a leer el manual.")
+    elif difficulty_exam == "Medio":
+        q1 = st.radio("1. Un cliente te está contando frustrado que su pedido salió mal. ¿Cuál es tu trabajo en la etapa 'Hear' (Escuchar)?", 
+                      ["A) Hacerle preguntas de inmediato para saber a qué hora compró el producto.", 
+                       "B) Guardar silencio absoluto y dejar que termine de desahogarse sin interrumpir.", 
+                       "C) Empezar a buscar el recibo en el sistema mientras habla."], index=None, key="m1")
+
+        q2 = st.radio("2. Estás en la etapa de Empatía (E). ¿Qué frase es la correcta según el manual?", 
+                      ["A) 'Tiene usted toda la razón, nosotros fallamos.'", 
+                       "B) 'Lamento mucho las molestias.'", 
+                       "C) 'Entiendo perfectamente lo frustrante que es esta situación.'"], index=None, key="m2")
+
+        q3 = st.radio("3. Un cliente quiere devolver un producto pero NO tiene recibo. ¿En qué etapa le haces preguntas para buscar la transacción en el sistema?", 
+                      ["A) En la etapa Hear (H), interrumpiéndolo de inmediato.", 
+                       "B) En la etapa Resolve (R), después de haberlo escuchado y empatizado con él.", 
+                       "C) Nunca, simplemente le digo que 'no' inmediatamente."], index=None, key="m3")
+
+        q4 = st.radio("4. Es domingo y la tienda está llenísima. Un cliente en la fila regular se queja de que lleva 15 minutos esperando. ¿Qué haces?", 
+                      ["A) Le regalo un agua fresca por la molestia.", 
+                       "B) Le ofrezco un 10% de descuento en sus compras.", 
+                       "C) Empatizo con su espera y le agradezco su paciencia, pero NO le doy cortesías, ya que regalar producto por filas normales destruye la rentabilidad."], index=None, key="m4")
+
+        q5 = st.radio("5. Un cliente se queja de un empleado. ¿Qué debes hacer en la etapa Apologize (A)?", 
+                      ["A) Disculparme por el mal comportamiento del empleado frente al cliente.", 
+                       "B) Disculparme ÚNICAMENTE por la 'mala experiencia' del cliente, sin admitir la culpa del empleado antes de investigar internamente.", 
+                       "C) No disculparme de nada."], index=None, key="m5")
+
+        if st.button("Calificar Teoría (Medio)"):
+            score = 0
+            if q1 and q1.startswith("B"): score += 20
+            if q2 and q2.startswith("C"): score += 20
+            if q3 and q3.startswith("B"): score += 20
+            if q4 and q4.startswith("C"): score += 20
+            if q5 and q5.startswith("B"): score += 20
+            st.divider()
+            if score == 100: st.success(f"¡Calificación: {score}/100! Excelente. Ve a la Parte 2.")
+            elif score >= 80: st.warning(f"Calificación: {score}/100. Casi perfecto.")
+            else: st.error(f"Calificación: {score}/100. Necesitas repasar el manual.")
+
+    else:
+        # Difícil, Extremo, Casos Especiales
+        q1 = st.radio("1. Un cliente se equivocó y agarró papas picantes en lugar de regulares. Quiere cambiarlas y está a la defensiva. ¿Cuál es la manera correcta de manejar esto?", 
+                      ["A) Usar Empatía Neutral ('Entiendo la confusión') y SALTARSE la disculpa (A) para no admitir culpa de la tienda por un error del cliente.", 
+                       "B) Decir 'Siento mucho la confusión' y cambiarle las papas.", 
+                       "C) Decirle que él tuvo la culpa por no leer bien, pero que se las cambiarás esta vez."], index=None, key="h1")
+
+        q2 = st.radio("2. Un cliente te está insultando con lenguaje vulgar porque la terminal rechazó su tarjeta. ¿Qué haces?", 
+                      ["A) Tratas de ignorar los insultos y te enfocas en cobrarle para que se vaya rápido.", 
+                       "B) Le regalas la compra para evitar un escándalo.", 
+                       "C) Aplicas la Regla Cero: Estableces un límite de respeto inmediatamente y, si continúa, le pides que abandone la tienda."], index=None, key="h2")
+
+        q3 = st.radio("3. En la regla de 'Rentabilidad Suprema', ¿cuándo está justificado ofrecer un descuento de porcentaje en la cuenta total?", 
+                      ["A) Para cualquier queja menor, como un cliente que esperó 5 minutos extra.", 
+                       "B) Cuando el cliente amenaza con no volver a la tienda.", 
+                       "C) EXCLUSIVAMENTE para errores mayores de la tienda (ej. vender un producto caducado o un cobro doble grave)."], index=None, key="h3")
+
+        q4 = st.radio("4. Un cliente no tiene recibo y exige un reembolso en efectivo. Hiciste preguntas de investigación en la etapa Resolve y el sistema NO muestra ninguna transacción. ¿Qué haces?", 
+                      ["A) Le das el dinero en efectivo de todas formas para no perderlo como cliente.", 
+                       "B) Usas el sistema como escudo neutral ('Revisé minuciosamente y al no aparecer la transacción, no me es posible autorizar un reembolso').", 
+                       "C) Le ofreces una tarjeta de regalo (Gift Card) por el monto."], index=None, key="h4")
+
+        q5 = st.radio("5. ¿Cuál es la regla estricta sobre sugerir Tarjetas de Regalo (Gift Cards) o Crédito de Tienda en La Vaquita para resolver quejas?", 
+                      ["A) Usarlas solo para clientes muy enojados.", 
+                       "B) Usarlas si no tenemos el producto que buscan.", 
+                       "C) CERO Tarjetas de Regalo. Jamás se deben ofrecer porque no somos una mega-cadena corporativa."], index=None, key="h5")
+
+        if st.button("Calificar Teoría (Avanzado)"):
+            score = 0
+            if q1 and q1.startswith("A"): score += 20
+            if q2 and q2.startswith("C"): score += 20
+            if q3 and q3.startswith("C"): score += 20
+            if q4 and q4.startswith("B"): score += 20
+            if q5 and q5.startswith("C"): score += 20
+            st.divider()
+            if score == 100: st.success(f"¡Calificación: {score}/100! Eres un maestro avanzado. Ve a la Parte 2.")
+            elif score >= 80: st.warning(f"Calificación: {score}/100. Casi perfecto. Revisa tus errores.")
+            else: st.error(f"Calificación: {score}/100. Reprobado. Necesitas volver a leer el manual avanzado.")
+
 
 # ==========================================
 # PARTE 2: EXAMEN PRÁCTICO (Simulador)
@@ -181,11 +259,6 @@ with tab2:
     """
 
     if len(st.session_state.exam_history) == 0 and not st.session_state.examen_concluido:
-        st.info("Selecciona el nivel de tu examen.")
-        difficulty_exam = st.selectbox(
-            "Nivel del Examen:",
-            ["Fácil", "Medio", "Difícil", "Extremo (Abusivo)", "Casos Especiales (Errores del Cliente)"]
-        )
 
         if st.button("Comenzar Examen Práctico"):
             
