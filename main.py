@@ -27,6 +27,7 @@ if not api_key:
 
 client = genai.Client(api_key=api_key)
 
+# Reducimos los filtros de seguridad para permitir simulaciones de clientes enojados
 seguridad_baja = [
     types.SafetySetting(category="HARM_CATEGORY_HARASSMENT", threshold="BLOCK_ONLY_HIGH"),
     types.SafetySetting(category="HARM_CATEGORY_HATE_SPEECH", threshold="BLOCK_ONLY_HIGH"),
@@ -394,38 +395,42 @@ with tab2:
                         )
                         st.session_state.current_feedback = examiner_response.text
                     except Exception as e:
-                        st.session_state.current_feedback = "⚠️ *Ups, error de red. Presiona el botón para avanzar e intentaremos guardar la puntuación de todas formas.*"
+                        st.error("⚠️ *Ups, el servidor del Evaluador está un poco saturado debido a alta demanda. Por favor, presiona el botón de abajo para reintentar la calificación.*")
 
-            with st.chat_message("assistant", avatar="🎓"):
-                st.markdown(st.session_state.current_feedback)
-            
-            st.divider()
-            
-            # Botones para avanzar
-            if idx < 2:
-                if st.button(f"Continuar al Cliente {idx + 2}"):
-                    st.session_state.exam_feedbacks.append(st.session_state.current_feedback)
-                    st.session_state.current_scenario_idx += 1
-                    st.session_state.scenario_concluido = False
-                    st.session_state.current_feedback = ""
-                    st.session_state.exam_history = []
-                    
-                    # Llamar al siguiente cliente
-                    next_prompt = st.session_state.exam_scenarios[st.session_state.current_scenario_idx]
-                    try:
-                        chat = client.chats.create(
-                            model="gemini-2.5-flash",
-                            config=types.GenerateContentConfig(system_instruction=actor_instrucciones, safety_settings=seguridad_baja)
-                        )
-                        resp = chat.send_message(next_prompt)
-                        st.session_state.exam_history.append({"role": "user", "content": next_prompt, "hidden": True})
-                        st.session_state.exam_history.append({"role": "model", "content": resp.text, "hidden": False})
-                    except Exception as e:
-                        pass # The error handler will catch it in the chat loop
-                    
-                    st.rerun()
+            if st.session_state.current_feedback:
+                with st.chat_message("assistant", avatar="🎓"):
+                    st.markdown(st.session_state.current_feedback)
+                
+                st.divider()
+                
+                # Botones para avanzar
+                if idx < 2:
+                    if st.button(f"Continuar al Cliente {idx + 2}"):
+                        st.session_state.exam_feedbacks.append(st.session_state.current_feedback)
+                        st.session_state.current_scenario_idx += 1
+                        st.session_state.scenario_concluido = False
+                        st.session_state.current_feedback = ""
+                        st.session_state.exam_history = []
+                        
+                        # Llamar al siguiente cliente
+                        next_prompt = st.session_state.exam_scenarios[st.session_state.current_scenario_idx]
+                        try:
+                            chat = client.chats.create(
+                                model="gemini-2.5-flash",
+                                config=types.GenerateContentConfig(system_instruction=actor_instrucciones, safety_settings=seguridad_baja)
+                            )
+                            resp = chat.send_message(next_prompt)
+                            st.session_state.exam_history.append({"role": "user", "content": next_prompt, "hidden": True})
+                            st.session_state.exam_history.append({"role": "model", "content": resp.text, "hidden": False})
+                        except Exception as e:
+                            pass # The error handler will catch it in the chat loop
+                        
+                        st.rerun()
+                else:
+                    if st.button("Ver Resultados Finales"):
+                        st.session_state.exam_feedbacks.append(st.session_state.current_feedback)
+                        st.session_state.examen_total_concluido = True
+                        st.rerun()
             else:
-                if st.button("Ver Resultados Finales"):
-                    st.session_state.exam_feedbacks.append(st.session_state.current_feedback)
-                    st.session_state.examen_total_concluido = True
+                if st.button("🔄 Reintentar Calificación"):
                     st.rerun()
