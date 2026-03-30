@@ -27,7 +27,6 @@ if not api_key:
 
 client = genai.Client(api_key=api_key)
 
-# Reducimos los filtros de seguridad para permitir simulaciones de clientes enojados
 seguridad_baja = [
     types.SafetySetting(category="HARM_CATEGORY_HARASSMENT", threshold="BLOCK_ONLY_HIGH"),
     types.SafetySetting(category="HARM_CATEGORY_HATE_SPEECH", threshold="BLOCK_ONLY_HIGH"),
@@ -78,7 +77,7 @@ difficulty_exam = st.selectbox(
 )
 st.divider()
 
-tab1, tab2 = st.tabs(["📚 Parte 1: Examen Teórico", "🥩 Parte 2: Examen Práctico (Simulación)"])
+tab1, tab2 = st.tabs(["📚 Parte 1: Examen Teórico", "🥩 Parte 2: Examen Práctico (3 Escenarios)"])
 
 # ==========================================
 # PARTE 1: EXAMEN TEÓRICO (Multiple Choice Dinámico)
@@ -165,7 +164,6 @@ with tab1:
             else: st.error(f"Calificación: {score}/100. Necesitas repasar el manual.")
 
     else:
-        # Difícil, Extremo, Casos Especiales
         q1 = st.radio("1. Un cliente se equivocó y agarró papas picantes en lugar de regulares. Quiere cambiarlas y está a la defensiva. ¿Cuál es la manera correcta de manejar esto?", 
                       ["A) Usar Empatía Neutral ('Entiendo la confusión') y SALTARSE la disculpa (A) para no admitir culpa de la tienda por un error del cliente.", 
                        "B) Decir 'Siento mucho la confusión' y cambiarle las papas.", 
@@ -204,38 +202,29 @@ with tab1:
             else: st.error(f"Calificación: {score}/100. Reprobado. Necesitas volver a leer el manual avanzado.")
 
 # ==========================================
-# PARTE 2: EXAMEN PRÁCTICO (Simulador)
+# PARTE 2: EXAMEN PRÁCTICO (3 Escenarios)
 # ==========================================
 with tab2:
     st.header("El Examen Final: Prueba Práctica")
-    st.write("En este examen **NO habrá un tutor ayudándote**. Tendrás que manejar al cliente tú solo usando el método HEART y las políticas de la tienda. Al terminar, presiona 'Terminar y Calificar'.")
-
-    if "exam_history" not in st.session_state:
-        st.session_state.exam_history = []
-    if "examen_concluido" not in st.session_state:
-        st.session_state.examen_concluido = False
-    if "examiner_feedback" not in st.session_state:
-        st.session_state.examiner_feedback = ""
+    st.write("En este examen **NO habrá un tutor ayudándote**. Deberás atender a **3 clientes diferentes** de forma consecutiva. Usa el método HEART y las reglas de rentabilidad. ¡Buena suerte!")
 
     actor_instrucciones = """
     Eres el Actor del examen final interactivo en La Vaquita Meat Market. 
-    TU ÚNICO OBJETIVO: Actuar como un cliente realista según el nivel de dificultad. TÚ NO EVALÚAS AL GERENTE. 
+    TU ÚNICO OBJETIVO: Actuar como un cliente realista. NO evalúas al gerente. 
 
     REGLAS DE FORMATO:
     1. Primer mensaje:
-    **Escenario:** [Describe tu lenguaje corporal estrictamente en TERCERA PERSONA].
+    **Escenario:** [Describe tu lenguaje corporal en TERCERA PERSONA].
     **Cliente:** "[Escribe tu queja inicial en voz alta]".
     2. El resto de la conversación es solo tu diálogo. 
 
     REGLA DEL GAME MASTER: 
-    Si el gerente va a revisar las cámaras, recibo o sistema POS, sal de personaje y dale el resultado: "[Sistema: Efectivamente encuentras la transacción]". Luego responde como cliente. En dificultad Difícil/Extrema, a veces el sistema NO encuentra nada.
-
-    DETALLES CONTEXTUALES: Usa excusas reales. Si el gerente ofrece soluciones lógicas, acéptalas con alivio. Si te dan una cortesía (agua/pan), relaja tu actitud.
+    Si el gerente va a revisar las cámaras, recibo o sistema POS, sal de personaje y dale el resultado en corchetes: "[Sistema: Efectivamente encuentras la transacción]". Luego responde como cliente. En dificultad Difícil/Extrema, a veces el sistema NO encuentra nada.
 
     REGLAS DE DIFICULTAD:
-    - FÁCIL: Educado.
-    - MEDIO: Frustrado pero razonable. Si te ayudan, acepta.
-    - DIFÍCIL: Pasivo-agresivo. Si son firmes, te rindes.
+    - FÁCIL: Educado. NUNCA insultes.
+    - MEDIO: Frustrado pero razonable. Si te ayudan de forma justa, ACEPTA.
+    - DIFÍCIL/ESPECIAL: Pasivo-agresivo. Si son firmes y neutrales, te rindes con indignación.
     - EXTREMO (ABUSIVO): Furioso y usas insultos. Tu objetivo es ver si el gerente aplica la Regla Cero.
 
     CÓMO TERMINAR: Escribe "FIN DE LA SIMULACIÓN" en una línea nueva si el gerente completó la interacción, si te pidió que te fueras, o si llegan a 4 turnos.
@@ -244,60 +233,99 @@ with tab2:
     examiner_instrucciones = """
     Eres el EXAMINADOR FINAL IMPLACABLE de La Vaquita Meat Market.
     
-    Tu trabajo es calificar la transcripción de la simulación del gerente de 0 a 100 y dar un veredicto de APROBADO o REPROBADO. Eres objetivo, estricto y basas tu calificación enteramente en las políticas establecidas.
+    Tu trabajo es calificar la interacción del gerente de 0 a 100 y dar un veredicto de APROBADO (80+) o REPROBADO.
 
-    REGLAS DE CALIFICACIÓN Y PENALIZACIONES (Empiezan con 100 puntos):
-    1. LA REGLA DEL SIMULADOR DE TEXTO (SILENCIO EN 'H'): Dado que es un simulador de texto, la etapa H ocurre implícitamente cuando el gerente lee el primer mensaje. ESTÁ ESTRICTAMENTE PROHIBIDO penalizar al gerente por no escribir en la etapa Hear. 
-    2. PREGUNTAS EN RESOLVE (-20 pts): Si el gerente hizo preguntas de investigación (recibos, qué dijo el empleado, etc.) inmediatamente después del primer mensaje del cliente, penalízalos. Las preguntas SOLO deben hacerse en Resolve (R), después de la Empatía (E).
-    3. LA TRAMPA DE LA DISCULPA / ERROR DEL CLIENTE (-30 pts): Si el cliente causó el problema (ej. agarró mal el producto), el gerente NO debe disculparse. Si dijeron "lo siento", RESTA PUNTOS. Debieron usar Empatía Neutral.
-    4. QUEJAS SOBRE EMPLEADOS (-30 pts): Si la queja fue sobre un empleado y el gerente admitió la culpa del empleado frente al cliente, RESTA PUNTOS. Debieron disculparse solo por la "experiencia".
-    5. RENTABILIDAD Y CORTESÍAS (-40 pts): Si regalaron producto, dinero o descuentos por una "experiencia normal" (filas, tienda llena), REPRUÉBALOS. Cortesías son SOLO para errores de la tienda. Regalar "Gift Cards" es un reprobado automático.
+    REGLAS ESTRICTAS DE PENALIZACIONES:
+    1. SILENCIO EN 'H': ESTÁ ESTRICTAMENTE PROHIBIDO penalizar al gerente por no escribir frases como "lo escucho" en su primer mensaje. 
+    2. PREGUNTAS EN RESOLVE (-20 pts): Las preguntas de investigación SOLO deben hacerse en Resolve (R), después de empatizar (E). Si las hace antes, penaliza.
+    3. LA TRAMPA DE LA DISCULPA / ERROR DEL CLIENTE (-30 pts): Si el cliente causó el problema, el gerente NO debe disculparse. Si dijeron "lo siento", RESTA PUNTOS.
+    4. QUEJAS SOBRE EMPLEADOS (-30 pts): Si la queja fue sobre un empleado, no deben admitir culpa del empleado frente al cliente antes de investigar.
+    5. RENTABILIDAD Y CORTESÍAS (-40 pts): Si regalaron producto, dinero o cortesías por "experiencia normal" (filas, tienda llena), REPRUÉBALOS. Cortesías son SOLO para errores de la tienda. Regalar "Gift Cards" reprueba automáticamente.
     6. REGLA CERO (-40 pts): Si el cliente usó insultos y el gerente no puso un límite firme, REPRUÉBALOS.
 
     FORMATO DE RESPUESTA:
-    1. CALIFICACIÓN FINAL: [0-100]
-    2. VEREDICTO: [APROBADO (80+) / REPROBADO]
-    3. ANÁLISIS DETALLADO: Explica de manera directa por qué perdieron puntos o por qué fue perfecto. Analiza su ejecución de H-E-A-R-T y las políticas de la tienda.
+    1. CALIFICACIÓN: [0-100]
+    2. VEREDICTO: [APROBADO / REPROBADO]
+    3. ANÁLISIS: Explica por qué perdieron puntos o por qué fue perfecto.
     """
 
-    if len(st.session_state.exam_history) == 0 and not st.session_state.examen_concluido:
+    # Iniciar variables de sesión para el flujo de 3 escenarios
+    if "exam_scenarios" not in st.session_state:
+        st.session_state.exam_scenarios = []
+    if "current_scenario_idx" not in st.session_state:
+        st.session_state.current_scenario_idx = 0
+    if "exam_feedbacks" not in st.session_state:
+        st.session_state.exam_feedbacks = []
+    if "exam_history" not in st.session_state:
+        st.session_state.exam_history = []
+    if "scenario_concluido" not in st.session_state:
+        st.session_state.scenario_concluido = False
+    if "current_feedback" not in st.session_state:
+        st.session_state.current_feedback = ""
+    if "examen_total_concluido" not in st.session_state:
+        st.session_state.examen_total_concluido = False
 
-        if st.button("Comenzar Examen Práctico"):
-            
-            if difficulty_exam == "Fácil":
-                depto_elegido = random.choice(departamentos)
-                problema_elegido = random.choice(problemas_faciles)
-                descripcion_problema = f"El escenario ocurre en {depto_elegido}. Trata sobre {problema_elegido}."
-            elif difficulty_exam == "Medio":
-                depto_elegido = random.choice(departamentos)
-                problema_elegido = random.choice(problemas_medios)
-                descripcion_problema = f"El escenario ocurre en {depto_elegido}. Trata sobre {problema_elegido}."
-            elif difficulty_exam == "Casos Especiales (Errores del Cliente)":
-                problema_elegido = random.choice(errores_cliente)
-                descripcion_problema = f"CASO ESPECIAL DE ERROR DEL CLIENTE. Situación: {problema_elegido}."
-            else:
-                pesadilla_elegida = random.choice(pesadillas_la_vaquita)
-                descripcion_problema = f"La queja principal DEBE ser exactamente esta: {pesadilla_elegida}."
+    # PASO 1: Iniciar el Examen y Generar los 3 Escenarios
+    if len(st.session_state.exam_scenarios) == 0:
+        if st.button("Comenzar Examen Práctico (3 Escenarios)"):
+            with st.spinner("Seleccionando tus 3 clientes..."):
+                if difficulty_exam == "Fácil":
+                    elegidos = random.sample(problemas_faciles, 3)
+                elif difficulty_exam == "Medio":
+                    elegidos = random.sample(problemas_medios, 3)
+                elif difficulty_exam == "Casos Especiales (Errores del Cliente)":
+                    elegidos = random.sample(errores_cliente, 3)
+                else:
+                    elegidos = random.sample(pesadillas_la_vaquita, 3)
 
-            hidden_prompt = f"Inicia el examen. Complejidad {difficulty_exam}. {descripcion_problema}. ASEGÚRATE de incluir la pista en tercera persona en Escenario, dejar salto de línea y luego hablar como Cliente."
-            
-            with st.spinner("Generando escenario de examen..."):
+                scenarios_prompts = []
+                for prob in elegidos:
+                    depto = random.choice(departamentos)
+                    scenarios_prompts.append(f"Inicia la simulación. Complejidad {difficulty_exam}. El escenario ocurre en {depto}. Trata sobre: {prob}. ASEGÚRATE de incluir la pista en tercera persona en Escenario, dejar salto de línea y luego hablar como Cliente.")
+                
+                st.session_state.exam_scenarios = scenarios_prompts
+                
+                # Lanzar el primer escenario
+                primer_prompt = st.session_state.exam_scenarios[0]
                 try:
                     chat = client.chats.create(
                         model="gemini-2.5-flash",
                         config=types.GenerateContentConfig(system_instruction=actor_instrucciones, safety_settings=seguridad_baja)
                     )
-                    response = chat.send_message(hidden_prompt)
-                    texto_seguro = response.text if response.text else "⚠️ *Filtro activado.*"
-                    st.session_state.exam_history.append({"role": "user", "content": hidden_prompt, "hidden": True})
-                    st.session_state.exam_history.append({"role": "model", "content": texto_seguro, "hidden": False})
+                    resp = chat.send_message(primer_prompt)
+                    st.session_state.exam_history.append({"role": "user", "content": primer_prompt, "hidden": True})
+                    st.session_state.exam_history.append({"role": "model", "content": resp.text, "hidden": False})
                     st.rerun()
                 except Exception as e:
-                    st.error("⚠️ *Ups, el servidor de Google está un poco saturado en este momento. Por favor, espera 10 segundos y vuelve a presionar el botón.*")
+                    st.error("⚠️ *Ups, el servidor está ocupado. Intenta nuevamente en unos segundos.*")
+                    st.session_state.exam_scenarios = []
 
-    elif not st.session_state.examen_concluido:
+    # PASO 4: Resultados Finales
+    elif st.session_state.examen_total_concluido:
+        st.success("🎉 ¡Has completado los 3 escenarios del examen!")
+        
+        for i, fb in enumerate(st.session_state.exam_feedbacks):
+            st.subheader(f"Resultado del Cliente {i+1}")
+            st.markdown(fb)
+            st.divider()
+            
+        if st.button("Reiniciar Examen Completo"):
+            st.session_state.exam_scenarios = []
+            st.session_state.current_scenario_idx = 0
+            st.session_state.exam_feedbacks = []
+            st.session_state.exam_history = []
+            st.session_state.scenario_concluido = False
+            st.session_state.current_feedback = ""
+            st.session_state.examen_total_concluido = False
+            st.rerun()
+
+    # PASO 2 & 3: Manejando un Escenario Activo
+    else:
+        idx = st.session_state.current_scenario_idx
+        st.subheader(f"Cliente {idx + 1} de 3")
+        
+        # Mostrar el historial de este cliente específico
         chat_container = st.container()
-
         with chat_container:
             for message in st.session_state.exam_history:
                 if not message.get("hidden", False):
@@ -305,84 +333,99 @@ with tab2:
                     with st.chat_message(ui_role):
                         st.markdown(message["content"])
 
-        exam_input = st.chat_input("Escribe tu respuesta como Gerente...")
+        # Si aún estamos hablando con el cliente
+        if not st.session_state.scenario_concluido:
+            exam_input = st.chat_input("Escribe tu respuesta como Gerente...")
 
-        if exam_input:
-            st.session_state.exam_history.append({"role": "user", "content": exam_input, "hidden": False})
+            if exam_input:
+                st.session_state.exam_history.append({"role": "user", "content": exam_input, "hidden": False})
 
-            with chat_container:
-                with st.chat_message("user"):
-                    st.markdown(exam_input)
+                with chat_container:
+                    with st.chat_message("user"):
+                        st.markdown(exam_input)
 
-                formatted_history = []
-                for msg in st.session_state.exam_history[:-1]:
-                    formatted_history.append({"role": msg["role"], "parts": [{"text": msg["content"]}]})
+                    formatted_history = [{"role": msg["role"], "parts": [{"text": msg["content"]}]} for msg in st.session_state.exam_history[:-1]]
 
-                try:
-                    chat_actor = client.chats.create(
-                        model="gemini-2.5-flash", 
-                        config=types.GenerateContentConfig(system_instruction=actor_instrucciones, safety_settings=seguridad_baja),
-                        history=formatted_history
-                    )
+                    try:
+                        chat_actor = client.chats.create(
+                            model="gemini-2.5-flash", 
+                            config=types.GenerateContentConfig(system_instruction=actor_instrucciones, safety_settings=seguridad_baja),
+                            history=formatted_history
+                        )
 
-                    with st.chat_message("assistant"):
-                        with st.spinner("El cliente responde..."):
-                            response_actor = chat_actor.send_message(exam_input)
+                        with st.chat_message("assistant"):
+                            with st.spinner("El cliente responde..."):
+                                response_actor = chat_actor.send_message(exam_input)
+                            
+                            texto_actor = response_actor.text if response_actor.text else "⚠️ *Filtro activado.*"
+                            st.markdown(texto_actor)
+                    
+                        st.session_state.exam_history.append({"role": "model", "content": texto_actor, "hidden": False})
                         
-                        texto_actor = response_actor.text if response_actor.text else "⚠️ *Filtro activado.*"
-                        st.markdown(texto_actor)
-                
-                    st.session_state.exam_history.append({"role": "model", "content": texto_actor, "hidden": False})
+                        if "FIN DE LA SIMULACIÓN" in texto_actor.upper():
+                            st.session_state.scenario_concluido = True
+                            st.rerun()
+                    except Exception as e:
+                        st.session_state.exam_history.pop() 
+                        st.error("⚠️ *Ups, el servidor está ocupado. Espera 10 segundos y vuelve a enviar.*")
+
+            st.divider()
+            if st.button("Terminar Interacción Actual"):
+                st.session_state.scenario_concluido = True
+                st.rerun()
+
+        # Si terminamos de hablar con el cliente, pasar a calificación
+        else:
+            if not st.session_state.current_feedback:
+                with st.spinner("El Examinador está calificando este escenario..."):
+                    transcripcion = ""
+                    for m in st.session_state.exam_history:
+                        if not m.get("hidden", False):
+                            rol = "Cliente" if m["role"] == "model" else "Gerente"
+                            transcripcion += f"{rol}: {m['content']}\n\n"
                     
-                    if "FIN DE LA SIMULACIÓN" in texto_actor.upper():
-                        st.session_state.examen_concluido = True
-                        st.rerun()
-                except Exception as e:
-                    st.session_state.exam_history.pop() 
-                    st.error("⚠️ *Ups, el servidor de Google está un poco saturado en este momento. Por favor, espera 10 segundos y vuelve a enviar tu mensaje.*")
-
-        st.divider()
-        st.caption("¿Resolviste el problema? Haz clic abajo para recibir tu calificación.")
-        if st.button("Terminar Interacción y Calificar"):
-            st.session_state.examen_concluido = True
-            st.rerun()
-
-    if st.session_state.examen_concluido:
-        for message in st.session_state.exam_history:
-            if not message.get("hidden", False):
-                ui_role = "assistant" if message["role"] == "model" else "user"
-                with st.chat_message(ui_role):
-                    st.markdown(message["content"])
+                    prompt_examiner = f"Evalúa la siguiente interacción del examen final y entrega la calificación, veredicto y análisis según tus instrucciones estrictas:\n\n{transcripcion}"
                     
-        st.divider()
-        st.subheader("🛑 TIEMPO FUERA. EXAMEN CONCLUIDO.")
-        
-        if not st.session_state.examiner_feedback:
-            with st.spinner("El Examinador Implacable está calificando tu desempeño..."):
-                transcripcion = ""
-                for m in st.session_state.exam_history:
-                    if not m.get("hidden", False):
-                        rol = "Cliente" if m["role"] == "model" else "Gerente"
-                        transcripcion += f"{rol}: {m['content']}\n\n"
-                
-                prompt_examiner = f"Evalúa la siguiente interacción del examen final y entrega la calificación, veredicto y análisis según tus instrucciones estrictas:\n\n{transcripcion}"
-                
-                try:
-                    examiner_response = client.models.generate_content(
-                        model="gemini-2.5-pro",
-                        contents=prompt_examiner,
-                        config=types.GenerateContentConfig(system_instruction=examiner_instrucciones, safety_settings=seguridad_baja)
-                    )
-                    st.session_state.examiner_feedback = examiner_response.text
-                except Exception as e:
-                    st.session_state.examiner_feedback = "⚠️ *Ups, el servidor del Evaluador está un poco saturado en este momento. Por favor, haz clic en 'Terminar Interacción y Calificar' nuevamente en unos segundos.*"
+                    try:
+                        examiner_response = client.models.generate_content(
+                            model="gemini-2.5-pro",
+                            contents=prompt_examiner,
+                            config=types.GenerateContentConfig(system_instruction=examiner_instrucciones, safety_settings=seguridad_baja)
+                        )
+                        st.session_state.current_feedback = examiner_response.text
+                    except Exception as e:
+                        st.session_state.current_feedback = "⚠️ *Ups, error de red. Presiona el botón para avanzar e intentaremos guardar la puntuación de todas formas.*"
 
-        with st.chat_message("assistant", avatar="🎓"):
-            st.markdown(st.session_state.examiner_feedback)
+            with st.chat_message("assistant", avatar="🎓"):
+                st.markdown(st.session_state.current_feedback)
             
-        st.divider()
-        if st.button("Reiniciar Examen"):
-            st.session_state.exam_history = []
-            st.session_state.examen_concluido = False
-            st.session_state.examiner_feedback = ""
-            st.rerun()
+            st.divider()
+            
+            # Botones para avanzar
+            if idx < 2:
+                if st.button(f"Continuar al Cliente {idx + 2}"):
+                    st.session_state.exam_feedbacks.append(st.session_state.current_feedback)
+                    st.session_state.current_scenario_idx += 1
+                    st.session_state.scenario_concluido = False
+                    st.session_state.current_feedback = ""
+                    st.session_state.exam_history = []
+                    
+                    # Llamar al siguiente cliente
+                    next_prompt = st.session_state.exam_scenarios[st.session_state.current_scenario_idx]
+                    try:
+                        chat = client.chats.create(
+                            model="gemini-2.5-flash",
+                            config=types.GenerateContentConfig(system_instruction=actor_instrucciones, safety_settings=seguridad_baja)
+                        )
+                        resp = chat.send_message(next_prompt)
+                        st.session_state.exam_history.append({"role": "user", "content": next_prompt, "hidden": True})
+                        st.session_state.exam_history.append({"role": "model", "content": resp.text, "hidden": False})
+                    except Exception as e:
+                        pass # The error handler will catch it in the chat loop
+                    
+                    st.rerun()
+            else:
+                if st.button("Ver Resultados Finales"):
+                    st.session_state.exam_feedbacks.append(st.session_state.current_feedback)
+                    st.session_state.examen_total_concluido = True
+                    st.rerun()
