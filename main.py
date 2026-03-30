@@ -34,13 +34,16 @@ seguridad_baja = [
     types.SafetySetting(category="HARM_CATEGORY_DANGEROUS_CONTENT", threshold="BLOCK_ONLY_HIGH"),
 ]
 
-# --- BÓVEDA DE ESCENARIOS (LA MISMA QUE EL ENTRENAMIENTO) ---
+# --- BÓVEDA DE ESCENARIOS SEPARADA POR DIFICULTAD ---
 departamentos = ["la Carnicería", "la Taquería", "la Panadería", "la Paletería", "las Cajas Principales", "el Pasillo de Abarrotes", "el área de Frutas y Verduras"]
 
-problemas_comunes = [
+problemas_faciles = [
     "un cliente que YA PAGÓ y llegó a su casa, pero tuvo que regresar muy molesto porque descubrió que le dieron el producto equivocado o le falta un artículo en sus bolsas", 
     "un error en la cocina que causó que una orden previa para recoger se retrasara 20 minutos más de lo prometido, y el cliente está impaciente", 
-    "un cliente que YA PAGÓ y revisando su recibo nota que se le cobró de más por un error en el sistema o un letrero confuso, exigiendo la diferencia", 
+    "un cliente que YA PAGÓ y revisando su recibo nota que se le cobró de más por un error en el sistema o un letrero confuso, exigiendo la diferencia"
+]
+
+problemas_medios = [
     "un cliente frustrado que intenta devolver un producto básico (como pan o fruta) argumentando que salió de mala calidad o echado a perder",
     "un empleado que supuestamente le dio un mal trato, lo ignoró o le habló con mala actitud al cliente",
     "un cliente que quiere cambiar un producto básico y cerrado (como unas papas o refresco) pero no tiene el recibo de compra"
@@ -200,7 +203,6 @@ with tab1:
             elif score >= 80: st.warning(f"Calificación: {score}/100. Casi perfecto. Revisa tus errores.")
             else: st.error(f"Calificación: {score}/100. Reprobado. Necesitas volver a leer el manual avanzado.")
 
-
 # ==========================================
 # PARTE 2: EXAMEN PRÁCTICO (Simulador)
 # ==========================================
@@ -262,9 +264,13 @@ with tab2:
 
         if st.button("Comenzar Examen Práctico"):
             
-            if difficulty_exam in ["Fácil", "Medio"]:
+            if difficulty_exam == "Fácil":
                 depto_elegido = random.choice(departamentos)
-                problema_elegido = random.choice(problemas_comunes)
+                problema_elegido = random.choice(problemas_faciles)
+                descripcion_problema = f"El escenario ocurre en {depto_elegido}. Trata sobre {problema_elegido}."
+            elif difficulty_exam == "Medio":
+                depto_elegido = random.choice(departamentos)
+                problema_elegido = random.choice(problemas_medios)
                 descripcion_problema = f"El escenario ocurre en {depto_elegido}. Trata sobre {problema_elegido}."
             elif difficulty_exam == "Casos Especiales (Errores del Cliente)":
                 problema_elegido = random.choice(errores_cliente)
@@ -287,7 +293,7 @@ with tab2:
                     st.session_state.exam_history.append({"role": "model", "content": texto_seguro, "hidden": False})
                     st.rerun()
                 except Exception as e:
-                    st.error("⚠️ Servidor ocupado. Intenta de nuevo.")
+                    st.error("⚠️ *Ups, el servidor de Google está un poco saturado en este momento. Por favor, espera 10 segundos y vuelve a presionar el botón.*")
 
     elif not st.session_state.examen_concluido:
         chat_container = st.container()
@@ -333,7 +339,7 @@ with tab2:
                         st.rerun()
                 except Exception as e:
                     st.session_state.exam_history.pop() 
-                    st.error("⚠️ Servidor ocupado. Vuelve a enviar.")
+                    st.error("⚠️ *Ups, el servidor de Google está un poco saturado en este momento. Por favor, espera 10 segundos y vuelve a enviar tu mensaje.*")
 
         st.divider()
         st.caption("¿Resolviste el problema? Haz clic abajo para recibir tu calificación.")
@@ -369,7 +375,7 @@ with tab2:
                     )
                     st.session_state.examiner_feedback = examiner_response.text
                 except Exception as e:
-                    st.session_state.examiner_feedback = f"⚠️ *Error exacto de Google:* {e}"
+                    st.session_state.examiner_feedback = "⚠️ *Ups, el servidor del Evaluador está un poco saturado en este momento. Por favor, haz clic en 'Terminar Interacción y Calificar' nuevamente en unos segundos.*"
 
         with st.chat_message("assistant", avatar="🎓"):
             st.markdown(st.session_state.examiner_feedback)
