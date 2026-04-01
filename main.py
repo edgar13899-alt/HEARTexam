@@ -35,26 +35,31 @@ seguridad_baja = [
 ]
 
 # --- BÓVEDA DE ESCENARIOS SEPARADA POR DIFICULTAD ---
-departamentos = ["la Carnicería", "la Taquería", "la Panadería", "la Paletería", "las Cajas Principales", "el Pasillo de Abarrotes", "el área de Frutas y Verduras"]
 
+# FÁCIL: Cero recibos, cero cámaras. Solo fricción básica del momento.
 problemas_faciles = [
-    "un cliente que YA PAGÓ y llegó a su casa, pero tuvo que regresar muy molesto porque descubrió que le dieron el producto equivocado o le falta un artículo en sus bolsas", 
-    "un error en la cocina que causó que una orden previa para recoger se retrasara 20 minutos más de lo prometido, y el cliente está impaciente", 
-    "un cliente que YA PAGÓ y revisando su recibo nota que se le cobró de más por un error en el sistema o un letrero confuso, exigiendo la diferencia"
+    "un cliente que se queja porque la fila para pagar en la caja principal está muy larga y lleva esperando 10 minutos",
+    "un cliente en la taquería que está impaciente porque su orden está tardando 15 minutos más de lo normal debido a que la tienda está muy llena",
+    "un cliente que está molesto porque llegó a buscar su corte de carne o pan dulce favorito y ya se agotó por el día"
 ]
 
+# MEDIO: Requiere investigación, recibos, cámaras o manejo de empleados.
 problemas_medios = [
     "un cliente frustrado que intenta devolver un producto básico (como pan o fruta) argumentando que salió de mala calidad o echado a perder",
     "un empleado que supuestamente le dio un mal trato, lo ignoró o le habló con mala actitud al cliente",
-    "un cliente que quiere cambiar un producto básico y cerrado (como unas papas o refresco) pero no tiene el recibo de compra"
+    "un cliente que quiere cambiar un producto básico y cerrado (como unas papas o refresco) pero no tiene el recibo de compra",
+    "un cliente que YA PAGÓ y llegó a su casa, pero tuvo que regresar muy molesto porque descubrió que le dieron el producto equivocado o le falta un artículo en sus bolsas", 
+    "un cliente que YA PAGÓ y revisando su recibo nota que se le cobró de más por un error en el sistema o un letrero confuso, exigiendo la diferencia"
 ]
 
+# CASOS ESPECIALES: El error es 100% del cliente (Trampa de la Disculpa)
 errores_cliente = [
     "un cliente que por error agarró el producto equivocado (ej. papas picantes en lugar de regulares) y quiere cambiarlo, sintiéndose un poco a la defensiva o avergonzado por su propio error",
     "un cliente que accidentalmente tiró y rompió un frasco de vidrio que ya había pagado antes de salir de la tienda, y pregunta un poco apenado si le pueden dar otro gratis",
     "un cliente que exige un descuento porque leyó mal un letrero de oferta que estaba claramente marcado para otro producto diferente, sintiéndose frustrado"
 ]
 
+# EXTREMO/DIFÍCIL: Escenarios de alta tensión
 pesadillas_la_vaquita = [
     "un pago que aparece como 'pendiente' en la app del banco del cliente porque la terminal falló, y el cliente se niega rotundamente a volver a pasar la tarjeta por miedo a que se le cobre doble",
     "un cliente que recoge un pastel de cumpleaños personalizado en la panadería y exige un reembolso completo más el pastel gratis porque el nombre está mal escrito, a pesar de que el gerente tiene la hoja de pedido donde el cliente mismo escribió mal el nombre",
@@ -213,18 +218,19 @@ with tab2:
     Eres el Actor del examen final interactivo en La Vaquita Meat Market. 
     TU ÚNICO OBJETIVO: Actuar como un cliente realista. NO evalúas al gerente. 
 
-    REGLAS DE FORMATO:
+    REGLAS DE FORMATO Y UBICACIÓN FÍSICA:
     1. Primer mensaje:
     **Escenario:** [Describe tu lenguaje corporal en TERCERA PERSONA].
     **Cliente:** "[Escribe tu queja inicial en voz alta]".
     2. El resto de la conversación es solo tu diálogo. 
 
-    REGLA DEL GAME MASTER: 
-    Si el gerente va a revisar las cámaras, recibo o sistema POS, sal de personaje y dale el resultado en corchetes: "[Sistema: Efectivamente encuentras la transacción]". Luego responde como cliente.
+    REGLA DEL GAME MASTER (CÁMARAS Y SISTEMA) - ¡OBLIGATORIA!: 
+    Si el gerente te pide el recibo para revisarlo, o te dice que va a revisar las cámaras o el sistema POS, DEBES salir de personaje INMEDIATAMENTE en ese mismo turno. 
+    Añade esto al principio de tu respuesta: "[Sistema: Revisas las cámaras/sistema y confirmas que el cliente dice la verdad]". Luego, responde como cliente. ¡NUNCA ignores la revisión de cámaras ni congeles la interacción! (En dificultad Extrema, a veces el sistema no encuentra nada).
 
     REGLAS DE DIFICULTAD:
-    - FÁCIL: Educado. NUNCA insultes.
-    - MEDIO: Frustrado pero razonable. Si te ayudan de forma justa, ACEPTA.
+    - FÁCIL: Educado. Problemas sencillos (filas, cosas agotadas). NUNCA insultes.
+    - MEDIO: Frustrado pero razonable. Reclamos de comida o recibos. Si te ayudan de forma justa, ACEPTA.
     - DIFÍCIL/ESPECIAL: Pasivo-agresivo. Si son firmes y neutrales, te rindes con indignación.
     - EXTREMO (ABUSIVO): Furioso y usas insultos. Tu objetivo es ver si el gerente aplica la Regla Cero.
 
@@ -263,7 +269,7 @@ with tab2:
     if "exam_history" not in st.session_state:
         st.session_state.exam_history = []
     if "all_transcripts" not in st.session_state:
-        st.session_state.all_transcripts = [] # La Bóveda donde se guardan las 3 interacciones
+        st.session_state.all_transcripts = [] 
     if "scenario_concluido" not in st.session_state:
         st.session_state.scenario_concluido = False
     if "examen_total_concluido" not in st.session_state:
@@ -286,8 +292,7 @@ with tab2:
 
                 scenarios_prompts = []
                 for prob in elegidos:
-                    depto = random.choice(departamentos)
-                    scenarios_prompts.append(f"Inicia la simulación. Complejidad {difficulty_exam}. El escenario ocurre en {depto}. Trata sobre: {prob}. ASEGÚRATE de incluir la pista en tercera persona en Escenario, dejar salto de línea y luego hablar como Cliente.")
+                    scenarios_prompts.append(f"Inicia la simulación. Complejidad {difficulty_exam}. Trata sobre: {prob}. REGLA FÍSICA: Si el cliente ya pagó y regresa a la tienda con un reclamo post-compra, el escenario DEBE ocurrir obligatoriamente en las Cajas Principales o Servicio al Cliente. Si es un pedido activo o fila normal, ocurre en ese departamento. ASEGÚRATE de incluir la pista en tercera persona en Escenario, dejar salto de línea y luego hablar como Cliente.")
                 
                 st.session_state.exam_scenarios = scenarios_prompts
                 
@@ -313,7 +318,6 @@ with tab2:
         if not st.session_state.final_feedback:
             with st.spinner("El Examinador Implacable está evaluando los 3 escenarios..."):
                 
-                # Construir el mega-prompt con los 3 transcripts
                 mega_transcripcion = ""
                 for idx, transcript in enumerate(st.session_state.all_transcripts):
                     mega_transcripcion += f"=== INTERACCIÓN CON CLIENTE {idx + 1} ===\n{transcript}\n\n"
