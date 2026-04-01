@@ -35,14 +35,14 @@ seguridad_baja = [
 
 # --- BÓVEDA DE ESCENARIOS SEPARADA POR DIFICULTAD ---
 
-# FÁCIL: Errores indiscutibles de la tienda. H-E-A-R-T de manual. Cero trampas.
+# FÁCIL: Errores indiscutibles de la tienda EN EL MOSTRADOR.
 problemas_faciles = [
     "un cliente en la carnicería que pidió 2 libras de fajita, pero el carnicero se equivocó y le empaquetó bistec regular. El cliente sigue frente a la vitrina, apenas revisó el paquete y está molesto por el descuido. REGLA ESTRICTA: El cliente NO ha pagado ni ha salido de la tienda.",
     "un cliente en la taquería que está comiendo en las mesas de la tienda y se levanta molesto al mostrador porque sus tacos se los acaban de entregar fríos por un descuido de la cocina. REGLA ESTRICTA: El cliente NO ha salido de la tienda, está consumiendo en el lugar.",
     "un cliente en la panadería que acaba de recibir su café en el mostrador, da un sorbo ahí mismo, y nota que la máquina estaba mal calibrada (le sirvieron agua manchada). Exige que se lo cambien. REGLA ESTRICTA: El cliente sigue frente al mostrador y acaba de recibir el producto."
 ]
 
-# MEDIO: Requiere investigación, recibos, manejo de empleados o fricciones normales de la tienda (filas/agotados).
+# MEDIO: Requiere investigación, recibos, o manejar fricciones de tienda (filas/agotados).
 problemas_medios = [
     "un cliente que se queja porque la fila para pagar en la caja principal está muy larga y lleva esperando 15 minutos",
     "un cliente que está molesto porque llegó a buscar su corte de carne o pan dulce favorito y ya se agotó por el día",
@@ -52,14 +52,14 @@ problemas_medios = [
     "un cliente que YA PAGÓ y llegó a su casa, pero tuvo que regresar muy molesto porque descubrió que le dieron el producto equivocado o le falta un artículo en sus bolsas"
 ]
 
-# CASOS ESPECIALES: El error es 100% del cliente (Trampa de la Disculpa)
+# CASOS ESPECIALES: Trampa de la Disculpa
 errores_cliente = [
     "un cliente que por error agarró el producto equivocado (ej. papas picantes en lugar de regulares) y quiere cambiarlo, sintiéndose un poco a la defensiva o avergonzado por su propio error",
     "un cliente que accidentalmente tiró y rompió un frasco de vidrio que ya había pagado antes de salir de la tienda, y pregunta un poco apenado si le pueden dar otro gratis",
     "un cliente que exige un descuento porque leyó mal un letrero de oferta que estaba claramente marcado para otro producto diferente, sintiéndose frustrado"
 ]
 
-# EXTREMO/DIFÍCIL: Escenarios de alta tensión
+# EXTREMO/DIFÍCIL: Alta tensión, Regla Cero.
 pesadillas_la_vaquita = [
     "un pago que aparece como 'pendiente' en la app del banco del cliente porque la terminal falló, y el cliente se niega rotundamente a volver a pasar la tarjeta por miedo a que se le cobre doble",
     "un cliente que recoge un pastel de cumpleaños personalizado en la panadería y exige un reembolso completo más el pastel gratis porque el nombre está mal escrito, a pesar de que el gerente tiene la hoja de pedido donde el cliente mismo escribió mal el nombre",
@@ -276,6 +276,7 @@ with tab2:
     if "final_feedback" not in st.session_state:
         st.session_state.final_feedback = ""
 
+    # PASO 1: Iniciar el Examen y Generar los 3 Escenarios
     if len(st.session_state.exam_scenarios) == 0:
         if st.button("Comenzar Examen Práctico (3 Escenarios)"):
             with st.spinner("Seleccionando a tus 3 clientes..."):
@@ -294,6 +295,7 @@ with tab2:
                 
                 st.session_state.exam_scenarios = scenarios_prompts
                 
+                # Lanzar el primer escenario
                 primer_prompt = st.session_state.exam_scenarios[0]
                 try:
                     chat = client.chats.create(
@@ -308,6 +310,7 @@ with tab2:
                     st.error("⚠️ *Ups, el servidor está ocupado. Intenta nuevamente en unos segundos.*")
                     st.session_state.exam_scenarios = []
 
+    # PASO 4: Calificación Final
     elif st.session_state.examen_total_concluido:
         st.subheader("🛑 EXAMEN CONCLUIDO")
         
@@ -328,7 +331,8 @@ with tab2:
                     )
                     st.session_state.final_feedback = examiner_response.text
                 except Exception as e:
-                    st.error("⚠️ *Ups, el servidor del Evaluador está un poco saturado. Por favor, recarga la página o intenta de nuevo.*")
+                    # FIX: No more "reload the page" advice!
+                    st.error("⚠️ *Ups, el servidor del Evaluador está un poco saturado debido a la alta demanda. No recargues la página.*")
 
         if st.session_state.final_feedback:
             with st.chat_message("assistant", avatar="🎓"):
@@ -344,7 +348,12 @@ with tab2:
                 st.session_state.examen_total_concluido = False
                 st.session_state.final_feedback = ""
                 st.rerun()
+        else:
+            # FIX: The Retry Button!
+            if st.button("🔄 Reintentar Calificación Final"):
+                st.rerun()
 
+    # PASO 2 & 3: Manejando un Escenario Activo
     else:
         idx = st.session_state.current_scenario_idx
         st.subheader(f"Cliente {idx + 1} de 3")
