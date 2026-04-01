@@ -37,9 +37,9 @@ seguridad_baja = [
 
 # FÁCIL: Errores indiscutibles de la tienda. H-E-A-R-T de manual. Cero trampas.
 problemas_faciles = [
-    "un cliente en la carnicería que pidió 2 libras de fajita, pero el carnicero se equivocó y le empaquetó bistec regular. El cliente se dio cuenta antes de ir a la caja y está molesto por el descuido",
-    "un cliente en la taquería que está molesto porque su orden de tacos se le entregó fría por un descuido de la cocina",
-    "un cliente en la panadería que compró un café, pero la máquina estaba mal calibrada y le sirvieron agua manchada en lugar de café, por lo que exige que se lo cambien"
+    "un cliente en la carnicería que pidió 2 libras de fajita, pero el carnicero se equivocó y le empaquetó bistec regular. El cliente sigue frente a la vitrina, apenas revisó el paquete y está molesto por el descuido. REGLA ESTRICTA: El cliente NO ha pagado ni ha salido de la tienda.",
+    "un cliente en la taquería que está comiendo en las mesas de la tienda y se levanta molesto al mostrador porque sus tacos se los acaban de entregar fríos por un descuido de la cocina. REGLA ESTRICTA: El cliente NO ha salido de la tienda, está consumiendo en el lugar.",
+    "un cliente en la panadería que acaba de recibir su café en el mostrador, da un sorbo ahí mismo, y nota que la máquina estaba mal calibrada (le sirvieron agua manchada). Exige que se lo cambien. REGLA ESTRICTA: El cliente sigue frente al mostrador y acaba de recibir el producto."
 ]
 
 # MEDIO: Requiere investigación, recibos, manejo de empleados o fricciones normales de la tienda (filas/agotados).
@@ -229,7 +229,7 @@ with tab2:
     Añade esto al principio de tu respuesta: "[Sistema: Revisas las cámaras/sistema y confirmas que el cliente dice la verdad]". Luego, responde como cliente. ¡NUNCA ignores la revisión de cámaras ni congeles la interacción! (En dificultad Extrema, a veces el sistema no encuentra nada).
 
     REGLAS DE DIFICULTAD:
-    - FÁCIL: Educado. Problemas sencillos y directos (errores claros de la tienda). NUNCA insultes.
+    - FÁCIL: Educado. Problemas sencillos y directos (errores claros de la tienda EN EL MOSTRADOR). NUNCA insultes. Sigue estrictamente la regla de que NO has salido de la tienda.
     - MEDIO: Frustrado pero razonable. Reclamos de recibos, filas o empleados. Si te ayudan de forma justa, ACEPTA.
     - DIFÍCIL/ESPECIAL: Pasivo-agresivo. Si son firmes y neutrales, te rindes con indignación.
     - EXTREMO (ABUSIVO): Furioso y usas insultos. Tu objetivo es ver si el gerente aplica la Regla Cero.
@@ -261,7 +261,6 @@ with tab2:
     4. COMENTARIO FINAL DE GERENCIA: [Tu consejo final como examinador implacable].
     """
 
-    # Iniciar variables de sesión para el flujo
     if "exam_scenarios" not in st.session_state:
         st.session_state.exam_scenarios = []
     if "current_scenario_idx" not in st.session_state:
@@ -277,7 +276,6 @@ with tab2:
     if "final_feedback" not in st.session_state:
         st.session_state.final_feedback = ""
 
-    # PASO 1: Iniciar el Examen y Generar los 3 Escenarios
     if len(st.session_state.exam_scenarios) == 0:
         if st.button("Comenzar Examen Práctico (3 Escenarios)"):
             with st.spinner("Seleccionando a tus 3 clientes..."):
@@ -296,7 +294,6 @@ with tab2:
                 
                 st.session_state.exam_scenarios = scenarios_prompts
                 
-                # Lanzar el primer escenario
                 primer_prompt = st.session_state.exam_scenarios[0]
                 try:
                     chat = client.chats.create(
@@ -311,7 +308,6 @@ with tab2:
                     st.error("⚠️ *Ups, el servidor está ocupado. Intenta nuevamente en unos segundos.*")
                     st.session_state.exam_scenarios = []
 
-    # PASO 4: Calificación Final
     elif st.session_state.examen_total_concluido:
         st.subheader("🛑 EXAMEN CONCLUIDO")
         
@@ -349,7 +345,6 @@ with tab2:
                 st.session_state.final_feedback = ""
                 st.rerun()
 
-    # PASO 2 & 3: Manejando un Escenario Activo
     else:
         idx = st.session_state.current_scenario_idx
         st.subheader(f"Cliente {idx + 1} de 3")
@@ -402,14 +397,12 @@ with tab2:
                 st.session_state.scenario_concluido = True
                 st.rerun()
 
-        # Transición: El escenario actual terminó, guardar en la bóveda y avanzar
         else:
             st.info(f"✅ Has terminado con el Cliente {idx + 1}. Tus respuestas han sido guardadas de forma segura.")
             
             btn_text = f"Siguiente Cliente ({idx + 2} de 3)" if idx < 2 else "Calificar Examen Final"
             
             if st.button(btn_text):
-                # 1. Extraer y guardar la transcripción en la bóveda
                 transcripcion_actual = ""
                 for m in st.session_state.exam_history:
                     if not m.get("hidden", False):
@@ -417,16 +410,13 @@ with tab2:
                         transcripcion_actual += f"{rol}: {m['content']}\n"
                 st.session_state.all_transcripts.append(transcripcion_actual)
                 
-                # 2. Limpiar el historial para el próximo cliente
                 st.session_state.exam_history = []
                 st.session_state.scenario_concluido = False
                 st.session_state.current_scenario_idx += 1
                 
-                # 3. Avanzar o Terminar
                 if st.session_state.current_scenario_idx == 3:
                     st.session_state.examen_total_concluido = True
                 else:
-                    # Iniciar el próximo cliente
                     next_prompt = st.session_state.exam_scenarios[st.session_state.current_scenario_idx]
                     try:
                         chat = client.chats.create(
@@ -437,6 +427,6 @@ with tab2:
                         st.session_state.exam_history.append({"role": "user", "content": next_prompt, "hidden": True})
                         st.session_state.exam_history.append({"role": "model", "content": resp.text, "hidden": False})
                     except Exception as e:
-                        pass # El try-except principal lo atrapará si hay un error al recargar
+                        pass 
                 
                 st.rerun()
