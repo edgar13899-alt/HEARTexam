@@ -234,7 +234,12 @@ with tab2:
     - DIFÍCIL/ESPECIAL: Pasivo-agresivo. Si son firmes y neutrales, te rindes con indignación.
     - EXTREMO (ABUSIVO): Furioso y usas insultos. Tu objetivo es ver si el gerente aplica la Regla Cero.
 
-    CÓMO TERMINAR: Escribe "FIN DE LA SIMULACIÓN" en una línea nueva si el gerente completó la interacción, si te pidió que te fueras, o si llegan a 4 turnos.
+    CÓMO TERMINAR LA SIMULACIÓN (¡REGLA ESTRICTA DE DESPEDIDA!):
+    NUNCA termines la simulación en el mismo mensaje en el que aceptas la solución del gerente. Debes darle la oportunidad al gerente de hacer el último paso (Agradecer/Despedirse).
+    SOLO escribe "FIN DE LA SIMULACIÓN" en una línea nueva si:
+    1. El gerente ya te dio la solución, tú la aceptaste en un turno anterior, y AHORA el gerente se está despidiendo o finalizando el trato.
+    2. El gerente te pidió explícitamente que te retiraras (Regla Cero).
+    3. La conversación ha llegado a 5 turnos de ida y vuelta.
     """
 
     examiner_instrucciones = """
