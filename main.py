@@ -27,7 +27,6 @@ if not api_key:
 
 client = genai.Client(api_key=api_key)
 
-# Reducimos los filtros de seguridad para permitir simulaciones de clientes enojados
 seguridad_baja = [
     types.SafetySetting(category="HARM_CATEGORY_HARASSMENT", threshold="BLOCK_ONLY_HIGH"),
     types.SafetySetting(category="HARM_CATEGORY_HATE_SPEECH", threshold="BLOCK_ONLY_HIGH"),
@@ -36,20 +35,21 @@ seguridad_baja = [
 
 # --- BÓVEDA DE ESCENARIOS SEPARADA POR DIFICULTAD ---
 
-# FÁCIL: Cero recibos, cero cámaras. Solo fricción básica del momento.
+# FÁCIL: Errores indiscutibles de la tienda. H-E-A-R-T de manual. Cero trampas.
 problemas_faciles = [
-    "un cliente que se queja porque la fila para pagar en la caja principal está muy larga y lleva esperando 10 minutos",
-    "un cliente en la taquería que está impaciente porque su orden está tardando 15 minutos más de lo normal debido a que la tienda está muy llena",
-    "un cliente que está molesto porque llegó a buscar su corte de carne o pan dulce favorito y ya se agotó por el día"
+    "un cliente en la carnicería que pidió 2 libras de fajita, pero el carnicero se equivocó y le empaquetó bistec regular. El cliente se dio cuenta antes de ir a la caja y está molesto por el descuido",
+    "un cliente en la taquería que está molesto porque su orden de tacos se le entregó fría por un descuido de la cocina",
+    "un cliente en la panadería que compró un café, pero la máquina estaba mal calibrada y le sirvieron agua manchada en lugar de café, por lo que exige que se lo cambien"
 ]
 
-# MEDIO: Requiere investigación, recibos, cámaras o manejo de empleados.
+# MEDIO: Requiere investigación, recibos, manejo de empleados o fricciones normales de la tienda (filas/agotados).
 problemas_medios = [
+    "un cliente que se queja porque la fila para pagar en la caja principal está muy larga y lleva esperando 15 minutos",
+    "un cliente que está molesto porque llegó a buscar su corte de carne o pan dulce favorito y ya se agotó por el día",
     "un cliente frustrado que intenta devolver un producto básico (como pan o fruta) argumentando que salió de mala calidad o echado a perder",
     "un empleado que supuestamente le dio un mal trato, lo ignoró o le habló con mala actitud al cliente",
     "un cliente que quiere cambiar un producto básico y cerrado (como unas papas o refresco) pero no tiene el recibo de compra",
-    "un cliente que YA PAGÓ y llegó a su casa, pero tuvo que regresar muy molesto porque descubrió que le dieron el producto equivocado o le falta un artículo en sus bolsas", 
-    "un cliente que YA PAGÓ y revisando su recibo nota que se le cobró de más por un error en el sistema o un letrero confuso, exigiendo la diferencia"
+    "un cliente que YA PAGÓ y llegó a su casa, pero tuvo que regresar muy molesto porque descubrió que le dieron el producto equivocado o le falta un artículo en sus bolsas"
 ]
 
 # CASOS ESPECIALES: El error es 100% del cliente (Trampa de la Disculpa)
@@ -229,8 +229,8 @@ with tab2:
     Añade esto al principio de tu respuesta: "[Sistema: Revisas las cámaras/sistema y confirmas que el cliente dice la verdad]". Luego, responde como cliente. ¡NUNCA ignores la revisión de cámaras ni congeles la interacción! (En dificultad Extrema, a veces el sistema no encuentra nada).
 
     REGLAS DE DIFICULTAD:
-    - FÁCIL: Educado. Problemas sencillos (filas, cosas agotadas). NUNCA insultes.
-    - MEDIO: Frustrado pero razonable. Reclamos de comida o recibos. Si te ayudan de forma justa, ACEPTA.
+    - FÁCIL: Educado. Problemas sencillos y directos (errores claros de la tienda). NUNCA insultes.
+    - MEDIO: Frustrado pero razonable. Reclamos de recibos, filas o empleados. Si te ayudan de forma justa, ACEPTA.
     - DIFÍCIL/ESPECIAL: Pasivo-agresivo. Si son firmes y neutrales, te rindes con indignación.
     - EXTREMO (ABUSIVO): Furioso y usas insultos. Tu objetivo es ver si el gerente aplica la Regla Cero.
 
