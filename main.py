@@ -246,8 +246,8 @@ with tab2:
     REGLAS ESTRICTAS DE PENALIZACIONES:
     1. SILENCIO EN 'H': ESTÁ ESTRICTAMENTE PROHIBIDO penalizar al gerente por no escribir frases como "lo escucho". 
     2. PREGUNTAS EN RESOLVE (-20 pts): Las preguntas de investigación SOLO deben hacerse en Resolve (R), después de empatizar (E). Si interroga al cliente al principio, penaliza.
-    3. LA TRAMPA DE LA DISCULPA / ERROR DEL CLIENTE (-30 pts): Si el cliente causó el problema, el gerente NO debe disculparse. Si dijeron "lo siento", RESTA PUNTOS.
-    4. QUEJAS SOBRE EMPLEADOS (-30 pts): No deben admitir culpa del empleado frente al cliente antes de investigar.
+    3. LA TRAMPA DE LA DISCULPA / ERROR DEL CLIENTE (-30 pts): Si el cliente causó el problema (ej. agarró mal el producto), el gerente NO debe disculparse. Si dijeron "lo siento", RESTA PUNTOS.
+    4. QUEJAS DE ACTITUD DE EMPLEADOS (-30 pts): Si la queja es sobre la ACTITUD o MAL TRATO de un empleado (ej. "fue grosero", "me ignoró"), el gerente no debe admitir culpa del empleado antes de investigar. SIN EMBARGO, si es un ERROR OPERATIVO EVIDENTE (ej. le dieron la carne equivocada, comida fría, mal cobro), el gerente DEBE asumir la responsabilidad de la tienda y disculparse directamente. ¡NO penalices por disculparse ante errores operativos evidentes!
     5. RENTABILIDAD Y CORTESÍAS (-40 pts): Si regalaron producto, dinero o cortesías por "experiencia normal" (filas, tienda llena), penaliza severamente. Cortesías son SOLO para errores de la tienda. Cero "Gift Cards".
     6. REGLA CERO (-40 pts): Si el cliente usó insultos y el gerente no puso un límite firme, penaliza.
 
@@ -331,7 +331,6 @@ with tab2:
                     )
                     st.session_state.final_feedback = examiner_response.text
                 except Exception as e:
-                    # FIX: No more "reload the page" advice!
                     st.error("⚠️ *Ups, el servidor del Evaluador está un poco saturado debido a la alta demanda. No recargues la página.*")
 
         if st.session_state.final_feedback:
@@ -349,7 +348,6 @@ with tab2:
                 st.session_state.final_feedback = ""
                 st.rerun()
         else:
-            # FIX: The Retry Button!
             if st.button("🔄 Reintentar Calificación Final"):
                 st.rerun()
 
