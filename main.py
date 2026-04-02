@@ -33,16 +33,13 @@ seguridad_baja = [
     types.SafetySetting(category="HARM_CATEGORY_DANGEROUS_CONTENT", threshold="BLOCK_ONLY_HIGH"),
 ]
 
-# --- BÓVEDA DE ESCENARIOS SEPARADA POR DIFICULTAD ---
-
-# FÁCIL: Errores indiscutibles de la tienda EN EL MOSTRADOR.
+# --- BÓVEDA DE ESCENARIOS ---
 problemas_faciles = [
     "un cliente en la carnicería que pidió 2 libras de fajita, pero el carnicero se equivocó y le empaquetó bistec regular. El cliente sigue frente a la vitrina, apenas revisó el paquete y está molesto por el descuido. REGLA ESTRICTA: El cliente NO ha pagado ni ha salido de la tienda.",
     "un cliente en la taquería que está comiendo en las mesas de la tienda y se levanta molesto al mostrador porque sus tacos se los acaban de entregar fríos por un descuido de la cocina. REGLA ESTRICTA: El cliente NO ha salido de la tienda, está consumiendo en el lugar.",
     "un cliente en la panadería que acaba de recibir su café en el mostrador, da un sorbo ahí mismo, y nota que la máquina estaba mal calibrada (le sirvieron agua manchada). Exige que se lo cambien. REGLA ESTRICTA: El cliente sigue frente al mostrador y acaba de recibir el producto."
 ]
 
-# MEDIO: Requiere investigación, recibos, o manejar fricciones de tienda (filas/agotados).
 problemas_medios = [
     "un cliente que se queja porque la fila para pagar en la caja principal está muy larga y lleva esperando 15 minutos",
     "un cliente que está molesto porque llegó a buscar su corte de carne o pan dulce favorito y ya se agotó por el día",
@@ -52,14 +49,12 @@ problemas_medios = [
     "un cliente que YA PAGÓ y llegó a su casa, pero tuvo que regresar muy molesto porque descubrió que le dieron el producto equivocado o le falta un artículo en sus bolsas"
 ]
 
-# CASOS ESPECIALES: Trampa de la Disculpa
 errores_cliente = [
     "un cliente que por error agarró el producto equivocado (ej. papas picantes en lugar de regulares) y quiere cambiarlo, sintiéndose un poco a la defensiva o avergonzado por su propio error",
     "un cliente que accidentalmente tiró y rompió un frasco de vidrio que ya había pagado antes de salir de la tienda, y pregunta un poco apenado si le pueden dar otro gratis",
     "un cliente que exige un descuento porque leyó mal un letrero de oferta que estaba claramente marcado para otro producto diferente, sintiéndose frustrado"
 ]
 
-# EXTREMO/DIFÍCIL: Alta tensión, Regla Cero.
 pesadillas_la_vaquita = [
     "un pago que aparece como 'pendiente' en la app del banco del cliente porque la terminal falló, y el cliente se niega rotundamente a volver a pasar la tarjeta por miedo a que se le cobre doble",
     "un cliente que recoge un pastel de cumpleaños personalizado en la panadería y exige un reembolso completo más el pastel gratis porque el nombre está mal escrito, a pesar de que el gerente tiene la hoja de pedido donde el cliente mismo escribió mal el nombre",
@@ -249,14 +244,15 @@ with tab2:
     Debes dar UNA SOLA calificación final (promedio general) de 0 a 100 y un veredicto de APROBADO (80+) o REPROBADO.
 
     REGLAS ESTRICTAS DE PENALIZACIONES:
-    1. RENTABILIDAD SUPREMA / CERO DESCUENTOS POR ERRORES MENORES (-40 pts): Está TERMINANTEMENTE PROHIBIDO dar o aprobar descuentos porcentuales (ej. 10% menos) o productos gratis por errores menores que se arreglan en el momento (ej. carne equivocada en mostrador, tacos fríos, café aguado). Estos se resuelven con 'Disculpa Operativa' y cambio de producto. Si el gerente regala dinero de la tienda por un error de 60 segundos, penalízalo severamente.
-    2. DESCUENTOS PERMITIDOS: Solo se permiten para 'Errores Mayores' (doble cobro grave, comida echada a perder, pérdida de dinero real del cliente).
-    3. SILENCIO EN 'H': ESTÁ ESTRICTAMENTE PROHIBIDO penalizar al gerente por no escribir frases como "lo escucho". 
-    4. PREGUNTAS EN RESOLVE (-20 pts): Las preguntas de investigación SOLO deben hacerse en Resolve (R), después de empatizar (E). Si interroga al cliente al principio, penaliza.
-    5. LA TRAMPA DE LA DISCULPA / ERROR DEL CLIENTE (-30 pts): Si el cliente causó el problema (ej. agarró mal el producto), el gerente NO debe disculparse. Si dijeron "lo siento", RESTA PUNTOS.
-    6. QUEJAS DE ACTITUD DE EMPLEADOS (-30 pts): Si la queja es sobre la ACTITUD o MAL TRATO de un empleado (ej. "fue grosero", "me ignoró"), el gerente no debe admitir culpa del empleado antes de investigar. SIN EMBARGO, si es un ERROR OPERATIVO EVIDENTE (ej. le dieron la carne equivocada, comida fría, mal cobro), el gerente DEBE asumir la responsabilidad de la tienda y disculparse directamente. ¡NO penalices por disculparse ante errores operativos evidentes!
-    7. CORTESÍAS POR FILAS (-40 pts): Si regalaron cortesías por "experiencia normal" (filas, tienda llena), penaliza severamente. Cortesías son SOLO para errores de la tienda. Cero "Gift Cards".
-    8. REGLA CERO (-40 pts): Si el cliente usó insultos y el gerente no puso un límite firme, penaliza.
+    1. ORDEN CRONOLÓGICO DE HEART (-20 pts): La Empatía (E) DEBE venir ANTES de la Disculpa (A). Si el gerente lanza una disculpa en su primera oración antes de validar los sentimientos del cliente, penalízalo. Una disculpa prematura se siente transaccional y rompe el método.
+    2. RENTABILIDAD SUPREMA / CERO DESCUENTOS POR ERRORES MENORES (-40 pts): Está TERMINANTEMENTE PROHIBIDO dar o aprobar descuentos porcentuales (ej. 10% menos) o productos gratis por errores menores que se arreglan en el momento (ej. carne equivocada en mostrador, tacos fríos, café aguado). Estos se resuelven con 'Disculpa Operativa' y cambio de producto. Si regalan dinero, reprueba.
+    3. DESCUENTOS PERMITIDOS: Solo se permiten para 'Errores Mayores' (doble cobro grave, comida echada a perder, pérdida de dinero real del cliente).
+    4. SILENCIO EN 'H': ESTÁ ESTRICTAMENTE PROHIBIDO penalizar al gerente por no escribir frases como "lo escucho". 
+    5. PREGUNTAS EN RESOLVE (-20 pts): Las preguntas de investigación SOLO deben hacerse en Resolve (R), después de empatizar (E). Si interroga al cliente al principio, penaliza.
+    6. LA TRAMPA DE LA DISCULPA / ERROR DEL CLIENTE (-30 pts): Si el cliente causó el problema (ej. agarró mal el producto), el gerente NO debe disculparse. Si dijeron "lo siento", RESTA PUNTOS.
+    7. QUEJAS DE ACTITUD DE EMPLEADOS (-30 pts): Si la queja es sobre la ACTITUD o MAL TRATO de un empleado (ej. "fue grosero", "me ignoró"), el gerente no debe admitir culpa del empleado antes de investigar. SIN EMBARGO, si es un ERROR OPERATIVO EVIDENTE (ej. le dieron la carne equivocada, comida fría, mal cobro), el gerente DEBE asumir la responsabilidad de la tienda y disculparse directamente. ¡NO penalices por disculparse ante errores operativos evidentes!
+    8. CORTESÍAS POR FILAS (-40 pts): Si regalaron cortesías por "experiencia normal" (filas, tienda llena), penaliza severamente. Cortesías son SOLO para errores de la tienda. Cero "Gift Cards".
+    9. REGLA CERO (-40 pts): Si el cliente usó insultos y el gerente no puso un límite firme, penaliza.
 
     FORMATO DE RESPUESTA REQUERIDO:
     1. CALIFICACIÓN FINAL GLOBAL: [0-100]
