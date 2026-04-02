@@ -69,7 +69,7 @@ pesadillas_la_vaquita = [
 ]
 
 st.title("📝 Examen Final de Gerencia")
-st.write("Demuestra que dominas las políticas de La Vaquita Meat Market y el Método HEART.")
+st.write("Demuestra que dominas las políticas de La Vaquita Meat Market y la psicología del Método HEART.")
 
 st.info("Selecciona el Nivel de tu Examen. Esto definirá tanto las preguntas teóricas como la dificultad de tu simulación práctica.")
 difficulty_exam = st.selectbox(
@@ -84,35 +84,34 @@ tab1, tab2 = st.tabs(["📚 Parte 1: Examen Teórico", "🥩 Parte 2: Examen Pr�
 # PARTE 1: EXAMEN TEÓRICO (Multiple Choice Dinámico)
 # ==========================================
 with tab1:
-    st.header("Examen de Políticas y Procedimientos")
+    st.header("Examen de Políticas y Psicología")
     st.write(f"Preguntas para el nivel: **{difficulty_exam}**")
 
     if difficulty_exam == "Fácil":
-        q1 = st.radio("1. ¿En cuál de las siguientes situaciones deberías usar el método HEART?", 
-                      ["A) Cuando un cliente regular está pagando sus compras felizmente en la caja.", 
-                       "B) Cuando un cliente molesto y frustrado exige hablar contigo porque le dieron un pedido equivocado.", 
-                       "C) Cuando un empleado te pide sus vacaciones.",
-                       "D) Cuando un proveedor llega a entregar mercancía por la puerta trasera."], index=None, key="e1")
+        q1 = st.radio("1. En la técnica de 'Empatía Neutral para Salvar el Ego', ¿cuál es la mejor frase para desarmar a un cliente que se equivocó de producto?", 
+                      ["A) 'Nuestros letreros pueden ser un poco confusos, lo entiendo.'", 
+                       "B) 'Entiendo la confusión, a mí también se me pasa por alto al hacer el mandado.'", 
+                       "C) 'Usted se equivocó de pasillo, pero se lo cambio.'"], index=None, key="e1")
 
-        q2 = st.radio("2. ¿Qué significa la letra 'H' (Hear) en el método de La Vaquita y cuál es tu trabajo en este paso?", 
-                      ["A) Significa interrogar al cliente inmediatamente para saber qué pasó.", 
-                       "B) Significa 'Escucha Silenciosa': Debes guardar silencio absoluto y dejar que el cliente se desahogue sin interrumpirlo.", 
-                       "C) Significa explicarle las políticas de la tienda al cliente en cuanto empiece a hablar."], index=None, key="e2")
+        q2 = st.radio("2. ¿Por qué es psicológicamente importante usar el 'Giro de Investigación' (ej. 'Para ayudarle, ¿me permite su recibo?') en la etapa Resolve?", 
+                      ["A) Porque suena más elegante.", 
+                       "B) Porque evita que el cliente se ponga a la defensiva, cambiándote de un 'interrogador' a un 'socio' que busca solucionarle el problema.", 
+                       "C) Porque es la ley en Texas."], index=None, key="e2")
 
         q3 = st.radio("3. ¿Cuál es el propósito principal de la etapa 'E' (Empatizar)?", 
-                      ["A) Validar las emociones del cliente (ej. 'Entiendo su frustración') para conectar con ellos.", 
+                      ["A) Validar las emociones del cliente (ej. 'Entiendo su frustración') para conectar con ellos ANTES de ofrecer soluciones.", 
                        "B) Darle la razón al cliente en absolutamente todo lo que diga.", 
-                       "C) Ofrecer una disculpa por el error."], index=None, key="e3")
+                       "C) Ofrecer una disculpa por el error y darle un producto gratis."], index=None, key="e3")
 
-        q4 = st.radio("4. En la etapa 'A' (Apologize), ¿por qué ofrecemos una disculpa cuando la tienda comete un error real?", 
-                      ["A) Para que el cliente se vaya más rápido.", 
-                       "B) Para asumir la responsabilidad profesionalmente en nombre de la empresa.", 
-                       "C) Para echarle la culpa al cajero o al cocinero frente al cliente."], index=None, key="e4")
+        q4 = st.radio("4. En la etapa 'A' (Apologize), ¿cuándo debes usar una 'Disculpa Operativa'?", 
+                      ["A) Cuando la fila está muy larga.", 
+                       "B) Cuando hay un error comprobado y evidente de la tienda, como entregar la carne equivocada en el mostrador.", 
+                       "C) Cuando el cliente leyó mal un precio."], index=None, key="e4")
 
-        q5 = st.radio("5. ¿Cuál es la regla básica para usar una 'Cortesía de Bajo Costo' (como regalar un agua fresca o un pan dulce)?", 
-                      ["A) Se debe regalar a cualquier cliente que lo pida.", 
-                       "B) Se debe usar a diario porque la tienda siempre está muy llena.", 
-                       "C) Es EXCLUSIVAMENTE para calmar a clientes que sufrieron una demora o inconveniente causado por un error comprobado de la tienda."], index=None, key="e5")
+        q5 = st.radio("5. ¿Qué significa la letra 'H' (Hear) en el método de La Vaquita?", 
+                      ["A) Significa interrogar al cliente inmediatamente para saber qué pasó.", 
+                       "B) Significa 'Escucha Silenciosa': Debes guardar silencio absoluto y dejar que el cliente se desahogue sin interrumpirlo.", 
+                       "C) Significa explicarle las políticas de la tienda."], index=None, key="e5")
 
         if st.button("Calificar Teoría (Fácil)"):
             score = 0
@@ -120,44 +119,44 @@ with tab1:
             if q2 and q2.startswith("B"): score += 20
             if q3 and q3.startswith("A"): score += 20
             if q4 and q4.startswith("B"): score += 20
-            if q5 and q5.startswith("C"): score += 20
+            if q5 and q5.startswith("B"): score += 20
             st.divider()
             if score == 100: st.success(f"¡Calificación: {score}/100! Excelente. Ve a la Parte 2.")
             elif score >= 80: st.warning(f"Calificación: {score}/100. Casi perfecto.")
-            else: st.error(f"Calificación: {score}/100. Necesitas repasar el manual básico.")
+            else: st.error(f"Calificación: {score}/100. Necesitas repasar la psicología básica.")
 
     elif difficulty_exam == "Medio":
-        q1 = st.radio("1. Un cliente te está contando frustrado que su pedido salió mal. ¿Cuál es tu trabajo en la etapa 'Hear' (Escuchar)?", 
-                      ["A) Hacerle preguntas de inmediato para saber a qué hora compró el producto.", 
-                       "B) Guardar silencio absoluto y dejar que termine de desahogarse sin interrumpir.", 
-                       "C) Empezar a buscar el recibo en el sistema mientras habla."], index=None, key="m1")
+        q1 = st.radio("1. Un cliente está muy enojado. En la etapa Resolve, decides usar 'La Ilusión de Control' ofreciéndole dos alternativas. ¿Por qué funciona esto psicológicamente?", 
+                      ["A) Porque lo confunde y hace que se rinda.", 
+                       "B) Porque obliga a su cerebro a dejar de pelear y empezar a evaluar opciones, devolviéndole el sentido de poder.", 
+                       "C) Porque así siente que ganó dinero."], index=None, key="m1")
 
-        q2 = st.radio("2. Estás en la etapa de Empatía (E). ¿Qué frase es la correcta según el manual?", 
-                      ["A) 'Tiene usted toda la razón, nosotros fallamos.'", 
-                       "B) 'Lamento mucho las molestias.'", 
-                       "C) 'Entiendo perfectamente lo frustrante que es esta situación.'"], index=None, key="m2")
+        q2 = st.radio("2. Tienes que negarle un reembolso a un cliente porque no tiene recibo. ¿Por qué debes usar 'El Escudo del Sistema' (ej. 'El sistema no me permite autorizarlo')?", 
+                      ["A) Para despersonalizar el rechazo, evitando que el problema se convierta en una pelea personal entre tú y el cliente.", 
+                       "B) Porque las computadoras siempre tienen la razón.", 
+                       "C) Para asustar al cliente."], index=None, key="m2")
 
-        q3 = st.radio("3. Un cliente quiere devolver un producto pero NO tiene recibo. ¿En qué etapa le haces preguntas para buscar la transacción en el sistema?", 
-                      ["A) En la etapa Hear (H), interrumpiéndolo de inmediato.", 
-                       "B) En la etapa Resolve (R), después de haberlo escuchado y empatizado con él.", 
-                       "C) Nunca, simplemente le digo que 'no' inmediatamente."], index=None, key="m3")
+        q3 = st.radio("3. Un cliente se queja de la actitud de un empleado. Usas una 'Disculpa de Experiencia' diciendo: 'Lamento mucho su mala experiencia hoy'. ¿Por qué NO admites que el empleado tuvo la culpa?", 
+                      ["A) Porque los clientes siempre mienten.", 
+                       "B) Porque nunca debes admitir la culpa de un empleado frente al cliente antes de poder investigar las cámaras internamente, para proteger a tu equipo.", 
+                       "C) Porque no te importa la queja."], index=None, key="m3")
 
-        q4 = st.radio("4. Es domingo y la tienda está llenísima. Un cliente en la fila regular se queja de que lleva 15 minutos esperando. ¿Qué haces?", 
-                      ["A) Le regalo un agua fresca por la molestia.", 
-                       "B) Le ofrezco un 10% de descuento en sus compras.", 
-                       "C) Empatizo con su espera y le agradezco su paciencia, pero NO le doy cortesías, ya que regalar producto por filas normales destruye la rentabilidad."], index=None, key="m4")
+        q4 = st.radio("4. Un cliente esperó 20 minutos mientras buscabas su recibo perdido en el sistema para ayudarlo. ¿Qué técnica debes usar al despedirte (Thank)?", 
+                      ["A) El Reenfoque de Retroalimentación.", 
+                       "B) El Refuerzo de Paciencia (ej. 'Agradezco su paciencia y comprensión'), para recompensar el comportamiento positivo.", 
+                       "C) La Despedida Firme."], index=None, key="m4")
 
-        q5 = st.radio("5. Un cliente se queja de un empleado. ¿Qué debes hacer en la etapa Apologize (A)?", 
-                      ["A) Disculparme por el mal comportamiento del empleado frente al cliente.", 
-                       "B) Disculparme ÚNICAMENTE por la 'mala experiencia' del cliente, sin admitir la culpa del empleado antes de investigar internamente.", 
-                       "C) No disculparme de nada."], index=None, key="m5")
+        q5 = st.radio("5. ¿Cuál es la regla básica para usar una 'Cortesía de Bajo Costo' (como regalar un agua fresca)?", 
+                      ["A) Se debe regalar por filas normales para mantener a todos felices.", 
+                       "B) Se usa EXCLUSIVAMENTE para calmar a clientes que sufrieron una demora o inconveniente inusual causado por un error comprobado de la tienda.", 
+                       "C) Se debe usar en todas las quejas."], index=None, key="m5")
 
         if st.button("Calificar Teoría (Medio)"):
             score = 0
             if q1 and q1.startswith("B"): score += 20
-            if q2 and q2.startswith("C"): score += 20
+            if q2 and q2.startswith("A"): score += 20
             if q3 and q3.startswith("B"): score += 20
-            if q4 and q4.startswith("C"): score += 20
+            if q4 and q4.startswith("B"): score += 20
             if q5 and q5.startswith("B"): score += 20
             st.divider()
             if score == 100: st.success(f"¡Calificación: {score}/100! Excelente. Ve a la Parte 2.")
@@ -165,25 +164,25 @@ with tab1:
             else: st.error(f"Calificación: {score}/100. Necesitas repasar el manual.")
 
     else:
-        q1 = st.radio("1. Un cliente se equivocó y agarró papas picantes en lugar de regulares. Quiere cambiarlas y está a la defensiva. ¿Cuál es la manera correcta de manejar esto?", 
-                      ["A) Usar Empatía Neutral ('Entiendo la confusión') y SALTARSE la disculpa (A) para no admitir culpa de la tienda por un error del cliente.", 
-                       "B) Decir 'Siento mucho la confusión' y cambiarle las papas.", 
-                       "C) Decirle que él tuvo la culpa por no leer bien, pero que se las cambiarás esta vez."], index=None, key="h1")
+        q1 = st.radio("1. Un cliente exige un descuento porque leyó mal un letrero. Vas a hacer un 'Ego Save'. ¿Por qué está ESTRICTAMENTE PROHIBIDO decir 'Entiendo la confusión, esos letreros son confusos'?", 
+                      ["A) Porque ofende al equipo de mercadotecnia.", 
+                       "B) Porque al culpar a la tienda, le das al cliente la munición perfecta para exigir un descuento por publicidad engañosa (La Trampa de Merchandising).", 
+                       "C) Porque el cliente ya sabe que se equivocó."], index=None, key="h1")
 
-        q2 = st.radio("2. Un cliente te está insultando con lenguaje vulgar porque la terminal rechazó su tarjeta. ¿Qué haces?", 
-                      ["A) Tratas de ignorar los insultos y te enfocas en cobrarle para que se vaya rápido.", 
-                       "B) Le regalas la compra para evitar un escándalo.", 
-                       "C) Aplicas la Regla Cero: Estableces un límite de respeto inmediatamente y, si continúa, le pides que abandone la tienda."], index=None, key="h2")
+        q2 = st.radio("2. Aplicas la 'Regla Cero' a un cliente que está usando lenguaje vulgar y le pides que se retire. ¿Qué técnica debes usar para cerrar la interacción (Thank)?", 
+                      ["A) La Despedida Firme (ej. 'Agradezco su visita, pero por las faltas de respeto le pido que se retire'), ya que es estéril, profesional y no deja espacio al debate.", 
+                       "B) El Refuerzo de Paciencia.", 
+                       "C) El Reenfoque de Retroalimentación."], index=None, key="h2")
 
-        q3 = st.radio("3. En la regla de 'Rentabilidad Suprema', ¿cuándo está justificado ofrecer un descuento de porcentaje en la cuenta total?", 
-                      ["A) Para cualquier queja menor, como un cliente que esperó 5 minutos extra.", 
-                       "B) Cuando el cliente amenaza con no volver a la tienda.", 
-                       "C) EXCLUSIVAMENTE para errores mayores de la tienda (ej. vender un producto caducado o un cobro doble grave)."], index=None, key="h3")
+        q3 = st.radio("3. Un cliente te informa que en el pasillo de lácteos hay un derrame. Al cerrar la interacción, usas el 'Reenfoque de Retroalimentación' (ej. 'Gracias a usted, puedo ir a limpiarlo'). ¿Por qué funciona?", 
+                      ["A) Acaricia su ego, transformándolo de un quejumbroso a un 'consultor valioso' que acaba de ayudar a la tienda.", 
+                       "B) Hace que se vaya más rápido.", 
+                       "C) Para echarle la culpa a mantenimiento."], index=None, key="h3")
 
-        q4 = st.radio("4. Un cliente no tiene recibo y exige un reembolso en efectivo. Hiciste preguntas de investigación en la etapa Resolve y el sistema NO muestra ninguna transacción. ¿Qué haces?", 
-                      ["A) Le das el dinero en efectivo de todas formas para no perderlo como cliente.", 
-                       "B) Usas el sistema como escudo neutral ('Revisé minuciosamente y al no aparecer la transacción, no me es posible autorizar un reembolso').", 
-                       "C) Le ofreces una tarjeta de regalo (Gift Card) por el monto."], index=None, key="h4")
+        q4 = st.radio("4. El carnicero empacó pollo en lugar de bistec. El cliente sigue en el mostrador y se da cuenta en 30 segundos. Según la regla de Rentabilidad Suprema, ¿qué haces?", 
+                      ["A) Le ofrezco un 10% de descuento por el error de la tienda.", 
+                       "B) Uso una Disculpa Operativa y le cambio el producto de inmediato. CERO DESCUENTOS por errores menores de mostrador.", 
+                       "C) Le regalo un agua fresca."], index=None, key="h4")
 
         q5 = st.radio("5. ¿Cuál es la regla estricta sobre sugerir Tarjetas de Regalo (Gift Cards) o Crédito de Tienda en La Vaquita para resolver quejas?", 
                       ["A) Usarlas solo para clientes muy enojados.", 
@@ -192,9 +191,9 @@ with tab1:
 
         if st.button("Calificar Teoría (Avanzado)"):
             score = 0
-            if q1 and q1.startswith("A"): score += 20
-            if q2 and q2.startswith("C"): score += 20
-            if q3 and q3.startswith("C"): score += 20
+            if q1 and q1.startswith("B"): score += 20
+            if q2 and q2.startswith("A"): score += 20
+            if q3 and q3.startswith("A"): score += 20
             if q4 and q4.startswith("B"): score += 20
             if q5 and q5.startswith("C"): score += 20
             st.divider()
@@ -230,38 +229,34 @@ with tab2:
     - EXTREMO (ABUSIVO): Furioso y usas insultos. Tu objetivo es ver si el gerente aplica la Regla Cero.
 
     CÓMO TERMINAR LA SIMULACIÓN (¡REGLA ESTRICTA DE DESPEDIDA!):
-    NUNCA termines la simulación en el mismo mensaje en el que aceptas la solución del gerente. Debes darle la oportunidad al gerente de hacer el último paso (Agradecer/Despedirse).
-    SOLO escribe "FIN DE LA SIMULACIÓN" en una línea nueva si:
-    1. El gerente ya te dio la solución, tú la aceptaste en un turno anterior, y AHORA el gerente se está despidiendo o finalizando el trato.
-    2. El gerente te pidió explícitamente que te retiraras (Regla Cero).
-    3. La conversación ha llegado a 4 o 5 intercambios.
+    NUNCA termines la simulación en el mismo mensaje en el que aceptas la solución del gerente. Debes dejar que el gerente use el paso 'Thank'.
+    Escribe "FIN DE LA SIMULACIÓN" solo después de que el gerente se despida o agradezca, o si te corren de la tienda.
     """
 
     examiner_instrucciones = """
     Eres el EXAMINADOR FINAL IMPLACABLE de La Vaquita Meat Market.
     
-    Tu trabajo es evaluar el desempeño del gerente a través de 3 ESCENARIOS DIFERENTES que se te proporcionarán en la transcripción. 
+    Tu trabajo es evaluar el desempeño del gerente a través de 3 ESCENARIOS DIFERENTES.
     Debes dar UNA SOLA calificación final (promedio general) de 0 a 100 y un veredicto de APROBADO (80+) o REPROBADO.
 
-    REGLAS ESTRICTAS DE PENALIZACIONES:
-    1. ORDEN CRONOLÓGICO DE HEART (-20 pts): La Empatía (E) DEBE venir ANTES de la Disculpa (A). Si el gerente lanza una disculpa en su primera oración antes de validar los sentimientos del cliente, penalízalo. Una disculpa prematura se siente transaccional y rompe el método.
-    2. RENTABILIDAD SUPREMA / CERO DESCUENTOS POR ERRORES MENORES (-40 pts): Está TERMINANTEMENTE PROHIBIDO dar o aprobar descuentos porcentuales (ej. 10% menos) o productos gratis por errores menores que se arreglan en el momento (ej. carne equivocada en mostrador, tacos fríos, café aguado). Estos se resuelven con 'Disculpa Operativa' y cambio de producto. Si regalan dinero, reprueba.
-    3. DESCUENTOS PERMITIDOS: Solo se permiten para 'Errores Mayores' (doble cobro grave, comida echada a perder, pérdida de dinero real del cliente).
-    4. SILENCIO EN 'H': ESTÁ ESTRICTAMENTE PROHIBIDO penalizar al gerente por no escribir frases como "lo escucho". 
-    5. PREGUNTAS EN RESOLVE (-20 pts): Las preguntas de investigación SOLO deben hacerse en Resolve (R), después de empatizar (E). Si interroga al cliente al principio, penaliza.
-    6. LA TRAMPA DE LA DISCULPA / ERROR DEL CLIENTE (-30 pts): Si el cliente causó el problema (ej. agarró mal el producto), el gerente NO debe disculparse. Si dijeron "lo siento", RESTA PUNTOS.
-    7. QUEJAS DE ACTITUD DE EMPLEADOS (-30 pts): Si la queja es sobre la ACTITUD o MAL TRATO de un empleado (ej. "fue grosero", "me ignoró"), el gerente no debe admitir culpa del empleado antes de investigar. SIN EMBARGO, si es un ERROR OPERATIVO EVIDENTE (ej. le dieron la carne equivocada, comida fría, mal cobro), el gerente DEBE asumir la responsabilidad de la tienda y disculparse directamente. ¡NO penalices por disculparse ante errores operativos evidentes!
-    8. CORTESÍAS POR FILAS (-40 pts): Si regalaron cortesías por "experiencia normal" (filas, tienda llena), penaliza severamente. Cortesías son SOLO para errores de la tienda. Cero "Gift Cards".
-    9. REGLA CERO (-40 pts): Si el cliente usó insultos y el gerente no puso un límite firme, penaliza.
+    REGLAS ESTRICTAS DE PENALIZACIONES (EVALÚA LA PSICOLOGÍA):
+    1. ORDEN CRONOLÓGICO DE HEART (-20 pts): La Empatía (E) DEBE venir ANTES de la Disculpa (A) o Resolución (R) en su mensaje.
+    2. RENTABILIDAD SUPREMA / CERO DESCUENTOS (-40 pts): Está TERMINANTEMENTE PROHIBIDO dar descuentos porcentuales o productos gratis por errores menores de mostrador (carne equivocada, tacos fríos). Penaliza severamente.
+    3. LA TRAMPA DE LA DISCULPA (-30 pts): Si el cliente causó el problema (ej. agarró mal el producto), el gerente NO debe disculparse ("Lo siento"). Debe usar Empatía Neutral.
+    4. LA TRAMPA DE MERCHANDISING (-30 pts): En un 'Ego Save', si el gerente culpa a la tienda, los empaques o los letreros, PENALIZA. Deben usar 'Humanidad Compartida' (ej. "a mí también me pasa").
+    5. PREGUNTAS COMO INTERROGATORIO (-20 pts): Si interrogan al cliente sin usar un 'Giro de Investigación' de alianza (ej. "Para ayudarle mejor..."), penalízalos.
+    6. TÉCNICAS DE RESOLUCIÓN: Evalúa positivamente si usan 'La Ilusión de Control' (dar opciones) o 'El Escudo del Sistema' (culpar al sistema en devoluciones negadas).
+    7. CIERRE PSICOLÓGICO ('THANK'): Evalúa si usaron la técnica correcta ('Reenfoque de Retroalimentación', 'Refuerzo de Paciencia', o 'Despedida Firme'). Penaliza cierres genéricos en situaciones tensas.
+    8. REGLA CERO (-40 pts): Si el cliente usó insultos y el gerente no puso un límite firme y pidió que se retirara con una 'Despedida Firme', penaliza.
 
     FORMATO DE RESPUESTA REQUERIDO:
     1. CALIFICACIÓN FINAL GLOBAL: [0-100]
     2. VEREDICTO: [APROBADO / REPROBADO]
     3. DESGLOSE POR CLIENTE:
-       - Cliente 1: [Breve análisis de sus aciertos/errores en este escenario]
-       - Cliente 2: [Breve análisis...]
-       - Cliente 3: [Breve análisis...]
-    4. COMENTARIO FINAL DE GERENCIA: [Tu consejo final como examinador implacable].
+       - Cliente 1: [Análisis de sus aciertos/errores psicológicos y operativos]
+       - Cliente 2: [Análisis...]
+       - Cliente 3: [Análisis...]
+    4. COMENTARIO FINAL DE GERENCIA.
     """
 
     if "exam_scenarios" not in st.session_state:
@@ -318,7 +313,7 @@ with tab2:
         st.subheader("🛑 EXAMEN CONCLUIDO")
         
         if not st.session_state.final_feedback:
-            with st.spinner("El Examinador Implacable está evaluando los 3 escenarios..."):
+            with st.spinner("El Examinador Implacable está evaluando la psicología y rentabilidad en tus 3 escenarios..."):
                 
                 mega_transcripcion = ""
                 for idx, transcript in enumerate(st.session_state.all_transcripts):
