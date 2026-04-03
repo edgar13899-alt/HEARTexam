@@ -206,7 +206,7 @@ with tab1:
 # ==========================================
 with tab2:
     st.header("El Examen Final: Prueba Práctica")
-    st.write("Atenderás a **3 clientes diferentes** de forma consecutiva. Al terminar con el tercer cliente, se evaluará tu desempeño global y recibirás tu calificación final.")
+    st.write("Atenderás a **3 clientes diferentes** de forma consecutiva. Al terminar, el Examinador te evaluará usando la estricta Rúbrica de 100 Puntos.")
 
     actor_instrucciones = """
     Eres el Actor del examen final interactivo en La Vaquita Meat Market. 
@@ -220,43 +220,67 @@ with tab2:
 
     REGLA DEL GAME MASTER (CÁMARAS Y SISTEMA) - ¡OBLIGATORIA!: 
     Si el gerente te pide el recibo para revisarlo, o te dice que va a revisar las cámaras o el sistema POS, DEBES salir de personaje INMEDIATAMENTE en ese mismo turno. 
-    Añade esto al principio de tu respuesta: "[Sistema: Revisas las cámaras/sistema y confirmas que el cliente dice la verdad]". Luego, responde como cliente. ¡NUNCA ignores la revisión de cámaras ni congeles la interacción! (En dificultad Extrema, a veces el sistema no encuentra nada).
+    Añade esto al principio de tu respuesta: "[Sistema: Revisas las cámaras/sistema y confirmas que el cliente dice la verdad]". Luego, responde como cliente. ¡NUNCA ignores la revisión de cámaras ni congeles la interacción!
 
     REGLAS DE DIFICULTAD:
-    - FÁCIL: Educado. Problemas sencillos y directos (errores claros de la tienda EN EL MOSTRADOR). NUNCA insultes. Sigue estrictamente la regla de que NO has salido de la tienda.
+    - FÁCIL: Educado. Problemas sencillos y directos (errores claros de la tienda EN EL MOSTRADOR). NUNCA insultes.
     - MEDIO: Frustrado pero razonable. Reclamos de recibos, filas o empleados. Si te ayudan de forma justa, ACEPTA.
     - DIFÍCIL/ESPECIAL: Pasivo-agresivo. Si son firmes y neutrales, te rindes con indignación.
     - EXTREMO (ABUSIVO): Furioso y usas insultos. Tu objetivo es ver si el gerente aplica la Regla Cero.
 
-    CÓMO TERMINAR LA SIMULACIÓN (¡REGLA ESTRICTA DE DESPEDIDA!):
-    NUNCA termines la simulación en el mismo mensaje en el que aceptas la solución del gerente. Debes dejar que el gerente use el paso 'Thank'.
-    Escribe "FIN DE LA SIMULACIÓN" solo después de que el gerente se despida o agradezca, o si te corren de la tienda.
+    CÓMO TERMINAR LA SIMULACIÓN:
+    ¡NUNCA termines la simulación prematuramente! 
+    Incluso si el problema ya se resolvió, DEBES ESPERAR a que el gerente haga su despedida final o te agradezca (el paso 'Thank'). 
+    SOLO DESPUÉS de su despedida, responde con tu última frase y agrega "FIN DE LA SIMULACIÓN".
     """
 
     examiner_instrucciones = """
     Eres el EXAMINADOR FINAL IMPLACABLE de La Vaquita Meat Market.
     
     Tu trabajo es evaluar el desempeño del gerente a través de 3 ESCENARIOS DIFERENTES.
-    Debes dar UNA SOLA calificación final (promedio general) de 0 a 100 y un veredicto de APROBADO (80+) o REPROBADO.
+    Debes aplicar la estricta RÚBRICA DE DEDUCCIONES a cada escenario, y luego dar UNA SOLA calificación final (promedio general) de 0 a 100 y un veredicto de APROBADO (80+) o REPROBADO.
 
-    REGLAS ESTRICTAS DE PENALIZACIONES (EVALÚA LA PSICOLOGÍA):
-    1. ORDEN CRONOLÓGICO DE HEART (-20 pts): La Empatía (E) DEBE venir ANTES de la Disculpa (A) o Resolución (R) en su mensaje.
-    2. RENTABILIDAD SUPREMA / CERO DESCUENTOS (-40 pts): Está TERMINANTEMENTE PROHIBIDO dar descuentos porcentuales o productos gratis por errores menores de mostrador (carne equivocada, tacos fríos). Penaliza severamente.
-    3. LA TRAMPA DE LA DISCULPA (-30 pts): Si el cliente causó el problema (ej. agarró mal el producto), el gerente NO debe disculparse ("Lo siento"). Debe usar Empatía Neutral.
-    4. LA TRAMPA DE MERCHANDISING (-30 pts): En un 'Ego Save', si el gerente culpa a la tienda, los empaques o los letreros, PENALIZA. Deben usar 'Humanidad Compartida' (ej. "a mí también me pasa").
-    5. PREGUNTAS COMO INTERROGATORIO (-20 pts): Si interrogan al cliente sin usar un 'Giro de Investigación' de alianza (ej. "Para ayudarle mejor..."), penalízalos.
-    6. TÉCNICAS DE RESOLUCIÓN: Evalúa positivamente si usan 'La Ilusión de Control' (dar opciones) o 'El Escudo del Sistema' (culpar al sistema en devoluciones negadas).
-    7. CIERRE PSICOLÓGICO ('THANK'): Evalúa si usaron la técnica correcta ('Reenfoque de Retroalimentación', 'Refuerzo de Paciencia', o 'Despedida Firme'). Penaliza cierres genéricos en situaciones tensas.
-    8. REGLA CERO (-40 pts): Si el cliente usó insultos y el gerente no puso un límite firme y pidió que se retirara con una 'Despedida Firme', penaliza.
+    LA RÚBRICA DE DEDUCCIONES (Aplica esto a CADA escenario sobre una base de 100 puntos):
+    
+    1. E - EMPATHIZE (Empatizar) - Valor: 25 puntos
+    * [-25 pts] FALTA GRAVE: Admitir culpa de la tienda prematuramente o dar la razón sobre los hechos antes de investigar.
+    * [-25 pts] TRAMPA DE MERCHANDISING: En un error del cliente, culpar a la tienda/empaques en lugar de usar humanidad compartida.
+    * [-10 pts] FALTA LEVE: Usar palabras absolutas (ej. "definitivamente").
+    * [-10 pts] EMPATÍA GENÉRICA: Usar una frase de cajón sin conectar con el contexto *específico* del cliente (cena, prisa, etc).
+    
+    2. A - APOLOGIZE (Disculparse) - Valor: 25 puntos
+    * [-25 pts] TRAMPA DE LA DISCULPA: Disculparse cuando el error fue causado por el cliente.
+    * [-15 pts] ERROR DE CLASIFICACIÓN: Usar el tipo de disculpa equivocada (ej. de Experiencia en lugar de Operativa).
+    * [-5 pts] DISCULPA ROBÓTICA.
 
-    FORMATO DE RESPUESTA REQUERIDO:
-    1. CALIFICACIÓN FINAL GLOBAL: [0-100]
-    2. VEREDICTO: [APROBADO / REPROBADO]
-    3. DESGLOSE POR CLIENTE:
-       - Cliente 1: [Análisis de sus aciertos/errores psicológicos y operativos]
-       - Cliente 2: [Análisis...]
-       - Cliente 3: [Análisis...]
-    4. COMENTARIO FINAL DE GERENCIA.
+    3. R - RESOLVE (Resolver) - Valor: 25 puntos
+    * [-25 pts] PÉRDIDA DE RENTABILIDAD: Dar un descuento porcentual o regalar un producto por un error operativo menor.
+    * [-15 pts] IGNORAR EL MICRO-LOOP: Si el cliente rechazó una solución y el gerente repitió mecánicamente lo mismo sin pivotar.
+    * [-10 pts] SOLUCIÓN DESCONECTADA / ENFOQUE POSITIVO: Ignorar las restricciones del cliente. Si el cliente tiene prisa, el gerente DEBE usar el Enfoque Positivo (ej. "para que pueda seguir con su día"). Penaliza si dicen "veo que tiene prisa".
+    * [-10 pts] INTERROGATORIO SECO: Faltar el 'Giro de Investigación' (alianza).
+    * [-5 pts] FALTA DE CONTROL: Faltar la 'Ilusión de Control' o 'Escudo del Sistema'.
+
+    4. T - THANK (Agradecer / Cierre) - Valor: 25 puntos
+    * [-100 pts / REPROBACIÓN AUTOMÁTICA]: Romper la Regla Cero ante insultos.
+    * [-10 pts] CIERRE DÉBIL: Usar "gracias" genérico en lugar del Reenfoque de Retroalimentación o Refuerzo de Paciencia.
+
+    FORMATO DE RESPUESTA REQUERIDO (Usa Markdown):
+    # 📋 BOLETA DE CERTIFICACIÓN HEART
+    **Calificación Global Promedio:** [Calcula el promedio de los 3 puntajes finales] / 100
+    **Veredicto Final:** [APROBADO / REPROBADO]
+
+    ### Desglose de Evaluación
+    **Cliente 1: [Puntaje]/100**
+    * *Deducciones y Análisis:* [Explica basándote en la rúbrica qué falló, cita al gerente, y da la frase correcta que debió usar].
+
+    **Cliente 2: [Puntaje]/100**
+    * *Deducciones y Análisis:* [...]
+
+    **Cliente 3: [Puntaje]/100**
+    * *Deducciones y Análisis:* [...]
+
+    REGLA DEL SISTEMA: 
+    Despídete con una frase motivadora al final. NO hagas preguntas abiertas. ESTÁ ESTRICTAMENTE PROHIBIDO "dibujar" botones con texto. La interfaz gráfica se encargará de mostrar los botones reales.
     """
 
     if "exam_scenarios" not in st.session_state:
@@ -313,13 +337,13 @@ with tab2:
         st.subheader("🛑 EXAMEN CONCLUIDO")
         
         if not st.session_state.final_feedback:
-            with st.spinner("El Examinador Implacable está evaluando la psicología y rentabilidad en tus 3 escenarios..."):
+            with st.spinner("El Examinador Oficial está calculando las deducciones de la Rúbrica en tus 3 escenarios..."):
                 
                 mega_transcripcion = ""
                 for idx, transcript in enumerate(st.session_state.all_transcripts):
                     mega_transcripcion += f"=== INTERACCIÓN CON CLIENTE {idx + 1} ===\n{transcript}\n\n"
                 
-                prompt_examiner = f"El gerente ha completado sus 3 escenarios. Aquí están las transcripciones completas:\n\n{mega_transcripcion}\n\nPor favor, entrega la Calificación Final, el Veredicto y el Desglose por Cliente según tus instrucciones."
+                prompt_examiner = f"El gerente ha completado sus 3 escenarios. Aquí están las transcripciones completas:\n\n{mega_transcripcion}\n\nPor favor, entrega la Calificación Final, el Veredicto y el Desglose de Deducciones por Cliente según tu Rúbrica de 100 puntos."
                 
                 try:
                     examiner_response = client.models.generate_content(
@@ -336,15 +360,27 @@ with tab2:
                 st.markdown(st.session_state.final_feedback)
                 
             st.divider()
-            if st.button("Reiniciar Examen Completo"):
-                st.session_state.exam_scenarios = []
-                st.session_state.current_scenario_idx = 0
-                st.session_state.exam_history = []
-                st.session_state.all_transcripts = []
-                st.session_state.scenario_concluido = False
-                st.session_state.examen_total_concluido = False
-                st.session_state.final_feedback = ""
-                st.rerun()
+            col1, col2 = st.columns(2)
+            with col1:
+                if st.button("Reiniciar Examen Completo"):
+                    st.session_state.exam_scenarios = []
+                    st.session_state.current_scenario_idx = 0
+                    st.session_state.exam_history = []
+                    st.session_state.all_transcripts = []
+                    st.session_state.scenario_concluido = False
+                    st.session_state.examen_total_concluido = False
+                    st.session_state.final_feedback = ""
+                    st.rerun()
+            with col2:
+                if st.button("🏠 Salir del Examen"):
+                    st.session_state.exam_scenarios = []
+                    st.session_state.current_scenario_idx = 0
+                    st.session_state.exam_history = []
+                    st.session_state.all_transcripts = []
+                    st.session_state.scenario_concluido = False
+                    st.session_state.examen_total_concluido = False
+                    st.session_state.final_feedback = ""
+                    st.rerun()
         else:
             if st.button("🔄 Reintentar Calificación Final"):
                 st.rerun()
@@ -372,30 +408,30 @@ with tab2:
                     with st.chat_message("user"):
                         st.markdown(exam_input)
 
-                    formatted_history = [{"role": msg["role"], "parts": [{"text": msg["content"]}]} for msg in st.session_state.exam_history[:-1]]
+                formatted_history = [{"role": msg["role"], "parts": [{"text": msg["content"]}]} for msg in st.session_state.exam_history[:-1]]
 
-                    try:
-                        chat_actor = client.chats.create(
-                            model="gemini-2.5-flash", 
-                            config=types.GenerateContentConfig(system_instruction=actor_instrucciones, safety_settings=seguridad_baja),
-                            history=formatted_history
-                        )
+                try:
+                    chat_actor = client.chats.create(
+                        model="gemini-2.5-flash", 
+                        config=types.GenerateContentConfig(system_instruction=actor_instrucciones, safety_settings=seguridad_baja),
+                        history=formatted_history
+                    )
 
-                        with st.chat_message("assistant"):
-                            with st.spinner("El cliente responde..."):
-                                response_actor = chat_actor.send_message(exam_input)
+                    with st.chat_message("assistant"):
+                        with st.spinner("El cliente responde..."):
+                            response_actor = chat_actor.send_message(exam_input)
                             
-                            texto_actor = response_actor.text if response_actor.text else "⚠️ *Filtro activado.*"
-                            st.markdown(texto_actor)
+                        texto_actor = response_actor.text if response_actor.text else "⚠️ *Filtro activado.*"
+                        st.markdown(texto_actor)
                     
-                        st.session_state.exam_history.append({"role": "model", "content": texto_actor, "hidden": False})
-                        
-                        if "FIN DE LA SIMULACIÓN" in texto_actor.upper():
-                            st.session_state.scenario_concluido = True
-                            st.rerun()
-                    except Exception as e:
-                        st.session_state.exam_history.pop() 
-                        st.error("⚠️ *Ups, el servidor está ocupado. Espera 10 segundos y vuelve a enviar.*")
+                    st.session_state.exam_history.append({"role": "model", "content": texto_actor, "hidden": False})
+                    
+                    if "FIN DE LA SIMULACIÓN" in texto_actor.upper():
+                        st.session_state.scenario_concluido = True
+                        st.rerun()
+                except Exception as e:
+                    st.session_state.exam_history.pop() 
+                    st.error("⚠️ *Ups, el servidor está ocupado. Espera 10 segundos y vuelve a enviar.*")
 
             st.divider()
             if st.button("Terminar Interacción con este Cliente"):
