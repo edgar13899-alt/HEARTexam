@@ -94,14 +94,14 @@ with tab1:
                        "C) 'Usted se equivocó de pasillo, pero se lo cambio.'"], index=None, key="e1")
 
         q2 = st.radio("2. ¿Por qué es psicológicamente importante usar el 'Giro de Investigación' (ej. 'Para ayudarle, ¿me permite su recibo?') en la etapa Resolve?", 
-                      ["A) Porque suena más elegante.", 
+                      ["A) Porque legalmente debes comprobar la compra en el sistema antes de poder ofrecer cualquier tipo de disculpa o empatía al cliente.", 
                        "B) Porque evita que el cliente se ponga a la defensiva, cambiándote de un 'interrogador' a un 'socio' que busca solucionarle el problema.", 
-                       "C) Porque es la ley en Texas."], index=None, key="e2")
+                       "C) Porque te permite ganar unos segundos extra para pensar en qué descuento o cortesía ofrecerle al cliente mientras buscas el recibo."], index=None, key="e2")
 
         q3 = st.radio("3. ¿Cuál es el propósito principal de la etapa 'E' (Empatizar)?", 
-                      ["A) Validar las emociones del cliente (ej. 'Entiendo su frustración') para conectar con ellos ANTES de ofrecer soluciones.", 
-                       "B) Darle la razón al cliente en absolutamente todo lo que diga.", 
-                       "C) Ofrecer una disculpa por el error y darle un producto gratis."], index=None, key="e3")
+                      ["A) Validar las emociones y la experiencia del cliente (ej. 'Entiendo su frustración') para conectar con él ANTES de intentar resolver el problema.", 
+                       "B) Darle la razón al cliente sobre los hechos ocurridos para que se calme rápidamente y acepte que la tienda asume toda la responsabilidad.", 
+                       "C) Explicar amablemente las políticas de la tienda desde el principio para que el cliente entienda por qué ocurrió el problema y baje su enojo."], index=None, key="e3")
 
         q4 = st.radio("4. En la etapa 'A' (Apologize), ¿cuándo debes usar una 'Disculpa Operativa'?", 
                       ["A) Cuando la fila está muy larga.", 
@@ -133,13 +133,13 @@ with tab1:
 
         q2 = st.radio("2. Tienes que negarle un reembolso a un cliente porque no tiene recibo. ¿Por qué debes usar 'El Escudo del Sistema' (ej. 'El sistema no me permite autorizarlo')?", 
                       ["A) Para despersonalizar el rechazo, evitando que el problema se convierta en una pelea personal entre tú y el cliente.", 
-                       "B) Porque las computadoras siempre tienen la razón.", 
-                       "C) Para asustar al cliente."], index=None, key="m2")
+                       "B) Para demostrarle al cliente que conoces el manual de operaciones y que tu decisión como gerente es final, reafirmando tu autoridad.", 
+                       "C) Para ganar tiempo mientras llamas a un gerente de mayor rango que tenga la clave especial para saltarse la política de devoluciones."], index=None, key="m2")
 
         q3 = st.radio("3. Un cliente se queja de la actitud de un empleado. Usas una 'Disculpa de Experiencia' diciendo: 'Lamento mucho su mala experiencia hoy'. ¿Por qué NO admites que el empleado tuvo la culpa?", 
-                      ["A) Porque los clientes siempre mienten.", 
-                       "B) Porque nunca debes admitir la culpa de un empleado frente al cliente antes de poder investigar las cámaras internamente, para proteger a tu equipo.", 
-                       "C) Porque no te importa la queja."], index=None, key="m3")
+                      ["A) Porque al admitir la culpa del empleado, te obligas automáticamente a darle al cliente un producto gratis según las reglas de Rentabilidad Suprema.", 
+                       "B) Porque nunca debes admitir la culpa de un empleado frente al cliente antes de poder investigar las cámaras internamente, para proteger a tu equipo y evitar responsabilidades prematuras.", 
+                       "C) Porque el cliente podría aprovechar la situación para exigir que llames al empleado y lo regañes públicamente frente a los demás clientes."], index=None, key="m3")
 
         q4 = st.radio("4. Si ya ofreciste una solución (ej. esperar 15 minutos por pollo fresco) y el cliente la rechaza diciendo '¡No tengo tiempo para esperar!', ¿cuál es la ejecución correcta del 'Micro-Loop'?", 
                       ["A) Repetir la misma solución con un tono más firme para mantener el control.", 
@@ -171,13 +171,13 @@ with tab1:
 
         q2 = st.radio("2. Aplicas la 'Regla Cero' a un cliente que está usando lenguaje vulgar y le pides que se retire. ¿Qué técnica debes usar para cerrar la interacción (Thank)?", 
                       ["A) La Despedida Firme (ej. 'Agradezco su visita, pero por las faltas de respeto le pido que se retire'), ya que es estéril, profesional y no deja espacio al debate.", 
-                       "B) El Refuerzo de Paciencia.", 
-                       "C) El Reenfoque de Retroalimentación."], index=None, key="h2")
+                       "B) El Refuerzo de Paciencia (ej. 'Gracias por entender'), asumiendo que el cliente dejará de insultar si lo tratas con demasiada amabilidad.", 
+                       "C) Cero Disculpas / Empatía Neutral (ej. 'Entiendo que esté enojado, por favor váyase'), para no admitir culpa mientras lo expulsas de la tienda."], index=None, key="h2")
 
         q3 = st.radio("3. Un cliente te informa que en el pasillo de lácteos hay un derrame. Al cerrar la interacción, usas el 'Reenfoque de Retroalimentación' (ej. 'Gracias a usted, puedo ir a limpiarlo'). ¿Por qué funciona?", 
-                      ["A) Acaricia su ego, transformándolo de un quejumbroso a un 'consultor valioso' que acaba de ayudar a la tienda.", 
-                       "B) Hace que se vaya más rápido.", 
-                       "C) Para echarle la culpa a mantenimiento."], index=None, key="h3")
+                      ["A) Acaricia su ego, transformándolo de un 'quejumbroso molesto' a un 'consultor valioso' que acaba de ayudar a la tienda a evitar un accidente.", 
+                       "B) Porque desvía su atención del peligro del derrame hacia tu excelente actitud de servicio, minimizando la gravedad del problema original.", 
+                       "C) Porque sirve como una 'Disculpa Operativa' disfrazada, asumiendo la culpa del derrame sin tener que ofrecerle ningún producto de compensación."], index=None, key="h3")
 
         q4 = st.radio("4. El carnicero empacó pollo en lugar de bistec. El cliente sigue en el mostrador y se da cuenta en 30 segundos. Según la regla de Rentabilidad Suprema, ¿qué haces?", 
                       ["A) Le ofrezco un 10% de descuento por el error de la tienda.", 
