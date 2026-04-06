@@ -126,10 +126,10 @@ with tab1:
             else: st.error(f"Calificación: {score}/100. Necesitas repasar la psicología básica.")
 
     elif difficulty_exam == "Medio":
-        q1 = st.radio("1. Un cliente está muy enojado. En la etapa Resolve, decides usar 'La Ilusión de Control' ofreciéndole dos alternativas. ¿Por qué funciona esto psicológicamente?", 
-                      ["A) Porque lo confunde y hace que se rinda.", 
-                       "B) Porque obliga a su cerebro a dejar de pelear y empezar a evaluar opciones, devolviéndole el sentido de poder.", 
-                       "C) Porque así siente que ganó dinero."], index=None, key="m1")
+        q1 = st.radio("1. ¿En qué situación operativa ESPECÍFICA se debe activar el Método HEART en lugar del protocolo normal de servicio al cliente?", 
+                      ["A) Siempre que un cliente haga una pregunta sobre los precios o ubicaciones de los productos en la tienda.", 
+                       "B) Cuando el cliente expresa frustración, exige una excepción a la política, o existe un riesgo de escalada emocional que amenaza la rentabilidad o la experiencia.", 
+                       "C) Exclusivamente cuando la tienda comete un error comprobado que resulta en una pérdida económica para el cliente."], index=None, key="m1")
 
         q2 = st.radio("2. Tienes que negarle un reembolso a un cliente porque no tiene recibo. ¿Por qué debes usar 'El Escudo del Sistema' (ej. 'El sistema no me permite autorizarlo')?", 
                       ["A) Para despersonalizar el rechazo, evitando que el problema se convierta en una pelea personal entre tú y el cliente.", 
@@ -141,22 +141,22 @@ with tab1:
                        "B) Porque nunca debes admitir la culpa de un empleado frente al cliente antes de poder investigar las cámaras internamente, para proteger a tu equipo.", 
                        "C) Porque no te importa la queja."], index=None, key="m3")
 
-        q4 = st.radio("4. Un cliente esperó 20 minutos mientras buscabas su recibo perdido en el sistema para ayudarlo. ¿Qué técnica debes usar al despedirte (Thank)?", 
+        q4 = st.radio("4. Si ya ofreciste una solución (ej. esperar 15 minutos por pollo fresco) y el cliente la rechaza diciendo '¡No tengo tiempo para esperar!', ¿cuál es la ejecución correcta del 'Micro-Loop'?", 
+                      ["A) Repetir la misma solución con un tono más firme para mantener el control.", 
+                       "B) Ofrecer inmediatamente un descuento del 10% para compensar la falta de tiempo.", 
+                       "C) Validar la nueva restricción de tiempo neutralmente y pivotar de inmediato ofreciendo nuevas opciones ('Ilusión de Control')."], index=None, key="m4")
+
+        q5 = st.radio("5. Un cliente esperó 20 minutos mientras buscabas su recibo perdido en el sistema para ayudarlo. ¿Qué técnica debes usar al despedirte (Thank)?", 
                       ["A) El Reenfoque de Retroalimentación.", 
                        "B) El Refuerzo de Paciencia (ej. 'Agradezco su paciencia y comprensión'), para recompensar el comportamiento positivo.", 
-                       "C) La Despedida Firme."], index=None, key="m4")
-
-        q5 = st.radio("5. ¿Cuál es la regla básica para usar una 'Cortesía de Bajo Costo' (como regalar un agua fresca)?", 
-                      ["A) Se debe regalar por filas normales para mantener a todos felices.", 
-                       "B) Se usa EXCLUSIVAMENTE para calmar a clientes que sufrieron una demora o inconveniente inusual causado por un error comprobado de la tienda.", 
-                       "C) Se debe usar en todas las quejas."], index=None, key="m5")
+                       "C) La Despedida Firme."], index=None, key="m5")
 
         if st.button("Calificar Teoría (Medio)"):
             score = 0
             if q1 and q1.startswith("B"): score += 20
             if q2 and q2.startswith("A"): score += 20
             if q3 and q3.startswith("B"): score += 20
-            if q4 and q4.startswith("B"): score += 20
+            if q4 and q4.startswith("C"): score += 20
             if q5 and q5.startswith("B"): score += 20
             st.divider()
             if score == 100: st.success(f"¡Calificación: {score}/100! Excelente. Ve a la Parte 2.")
@@ -164,10 +164,10 @@ with tab1:
             else: st.error(f"Calificación: {score}/100. Necesitas repasar el manual.")
 
     else:
-        q1 = st.radio("1. Un cliente exige un descuento porque leyó mal un letrero. Vas a hacer un 'Ego Save'. ¿Por qué está ESTRICTAMENTE PROHIBIDO decir 'Entiendo la confusión, esos letreros son confusos'?", 
-                      ["A) Porque ofende al equipo de mercadotecnia.", 
-                       "B) Porque al culpar a la tienda, le das al cliente la munición perfecta para exigir un descuento por publicidad engañosa (La Trampa de Merchandising).", 
-                       "C) Porque el cliente ya sabe que se equivocó."], index=None, key="h1")
+        q1 = st.radio("1. Un cliente está claramente estresado por el tiempo y mira su reloj constantemente. Según el 'Enfoque Positivo', ¿por qué está PROHIBIDO decirle 'Entiendo que lleva prisa'?", 
+                      ["A) Porque el cliente podría ofenderse al pensar que lo estás apresurando para que se vaya.", 
+                       "B) Porque actuar como un 'espejo' de su estrés solo refuerza y aumenta su ansiedad. Se debe usar una frase centrada en el alivio, como 'para que pueda seguir con su día'.", 
+                       "C) Porque implica que la tienda es la culpable de su retraso."], index=None, key="h1")
 
         q2 = st.radio("2. Aplicas la 'Regla Cero' a un cliente que está usando lenguaje vulgar y le pides que se retire. ¿Qué técnica debes usar para cerrar la interacción (Thank)?", 
                       ["A) La Despedida Firme (ej. 'Agradezco su visita, pero por las faltas de respeto le pido que se retire'), ya que es estéril, profesional y no deja espacio al debate.", 
