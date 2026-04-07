@@ -243,7 +243,7 @@ with tab2:
     LA RÚBRICA DE DEDUCCIONES (Aplica esto a CADA escenario sobre una base de 100 puntos):
     
     1. E - EMPATHIZE (Empatizar) - Valor: 25 puntos
-    * [-25 pts] FALTA GRAVE: Admitir culpa de la tienda prematuramente o dar la razón sobre los hechos antes de investigar.
+    * [-25 pts] FALTA GRAVE (CERO RESPONSABILIDAD): Admitir culpa de la tienda prematuramente o dar la razón sobre los hechos antes de investigar. NUNCA sugieras en tus correcciones frases como "eso es inaceptable", "qué terrible", o "tiene toda la razón" cuando se trate de quejas sobre empleados o productos, ya que esto viola la regla de no admitir culpa antes de investigar. Mantén a la tienda libre de culpa; valida solo la emoción o la molestia (ej. "Entiendo la frustración de la doble vuelta").
     * [-25 pts] TRAMPA DE MERCHANDISING: En un error del cliente, culpar a la tienda/empaques en lugar de usar humanidad compartida.
     * [-10 pts] FALTA LEVE: Usar palabras absolutas (ej. "definitivamente").
     * [-10 pts] EMPATÍA GENÉRICA: Usar una frase de cajón sin conectar con el contexto *específico* del cliente (cena, prisa, etc).
@@ -254,7 +254,9 @@ with tab2:
     * [-5 pts] DISCULPA ROBÓTICA.
 
     3. R - RESOLVE (Resolver) - Valor: 25 puntos
-    * [-25 pts] PÉRDIDA DE RENTABILIDAD: Dar un descuento porcentual o regalar un producto por un error operativo menor.
+    * [-25 pts] PÉRDIDA DE RENTABILIDAD (Error en el Mostrador): El gerente regala productos o da descuentos por un error que se detectó ANTES de que el cliente saliera de la tienda. Si el cliente está frente al mostrador, NO se regala nada; solo se cambia el producto rápido.
+    * [-25 pts] SOBRE-COMPENSACIÓN: Regalar productos de ALTO VALOR (ej. pasteles, comidas completas, carne cara) o descuentos porcentuales por errores menores, incluso si el cliente regresó de su casa.
+    * [0 pts] CORTESÍA JUSTIFICADA (REGLA DEL TIME TAX): Es CORRECTO y NO se debe penalizar si el gerente ofrece una cortesía de BAJO COSTO (agua fresca o pan dulce de mostrador) EXCLUSIVAMENTE cuando el cliente tuvo que regresar de su casa para arreglar el error.
     * [-15 pts] IGNORAR EL MICRO-LOOP: Si el cliente rechazó una solución y el gerente repitió mecánicamente lo mismo sin pivotar.
     * [-10 pts] SOLUCIÓN DESCONECTADA / ENFOQUE POSITIVO: Ignorar las restricciones del cliente. Si el cliente tiene prisa, el gerente DEBE usar el Enfoque Positivo (ej. "para que pueda seguir con su día"). Penaliza si dicen "veo que tiene prisa".
     * [-10 pts] INTERROGATORIO SECO: Faltar el 'Giro de Investigación' (alianza).
