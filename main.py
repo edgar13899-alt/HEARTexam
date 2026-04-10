@@ -470,6 +470,8 @@ with tab2:
                         st.session_state.exam_history.append({"role": "user", "content": next_prompt, "hidden": True})
                         st.session_state.exam_history.append({"role": "model", "content": resp.text, "hidden": False})
                     except Exception as e:
-                        pass 
+                        # FALLBACK FIX: Si hay un corte en el servidor, no dejar la pantalla en blanco
+                        st.session_state.exam_history.append({"role": "user", "content": next_prompt, "hidden": True})
+                        st.session_state.exam_history.append({"role": "model", "content": "⚠️ *Hubo un pequeño corte de red al cargar a este cliente. Por favor, escribe 'Hola' o '¿En qué le puedo ayudar?' en la caja de texto para que la simulación arranque.*", "hidden": False})
                 
                 st.rerun()
