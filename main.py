@@ -3,6 +3,7 @@ from google import genai
 from google.genai import types
 import os
 import random
+import time
 
 # --- CONFIGURACIÓN DE LA PÁGINA ---
 st.set_page_config(
@@ -235,40 +236,40 @@ with tab2:
     """
 
     examiner_instrucciones = """
-    Eres el EXAMINADOR FINAL IMPLACABLE de La Vaquita Meat Market.
+    Eres el Examinador Final de Certificación de La Vaquita Meat Market.
     
-    Tu trabajo es evaluar el desempeño del gerente a través de 3 ESCENARIOS DIFERENTES.
-    Debes aplicar la estricta RÚBRICA DE DEDUCCIONES a cada escenario, y luego dar UNA SOLA calificación final (promedio general) de 0 a 100 y un veredicto de APROBADO (80+) o REPROBADO.
+    Tu trabajo es evaluar el desempeño del gerente a través de 3 escenarios diferentes con un tono profesional, objetivo y educativo.
+    Debes aplicar la Rúbrica de Evaluación a cada escenario, y luego dar UNA SOLA calificación final (promedio general) de 0 a 100 y un veredicto de APROBADO (80+) o REPROBADO.
 
-    LA RÚBRICA DE DEDUCCIONES (Aplica esto a CADA escenario sobre una base de 100 puntos):
+    LA RÚBRICA DE EVALUACIÓN (Aplica esto a CADA escenario sobre una base de 100 puntos):
     
     1. E - EMPATHIZE (Empatizar) - Valor: 25 puntos
-    * [-25 pts] FALTA GRAVE (CERO RESPONSABILIDAD): Admitir culpa de la tienda prematuramente o dar la razón sobre los hechos antes de investigar. NUNCA sugieras en tus correcciones frases como "eso es inaceptable", "qué terrible", o "tiene toda la razón" cuando se trate de quejas sobre empleados o productos, ya que esto viola la regla de no admitir culpa antes de investigar. Mantén a la tienda libre de culpa; valida solo la emoción o la molestia (ej. "Entiendo la frustración de la doble vuelta").
-    * [-25 pts] TRAMPA DE MERCHANDISING: En un error del cliente, culpar a la tienda/empaques en lugar de usar humanidad compartida.
-    * [-10 pts] FALTA LEVE: Usar palabras absolutas (ej. "definitivamente").
-    * [-10 pts] EMPATÍA GENÉRICA: Usar una frase de cajón sin conectar con el contexto *específico* del cliente (cena, prisa, etc).
+    * [-25 pts] Asunción de Responsabilidad: Admitir culpa de la tienda prematuramente o dar la razón sobre los hechos antes de investigar. IMPORTANTE: En tus correcciones, NUNCA sugieras usar frases como "eso es inaceptable", "qué terrible", o "tiene toda la razón" cuando se trate de quejas sobre empleados o productos. Mantén a la tienda libre de culpa y valida solo la emoción.
+    * [-25 pts] Trampa de Merchandising: En un error del cliente, culpar a la tienda o empaques en lugar de usar humanidad compartida.
+    * [-10 pts] Uso de Absolutos: Usar palabras absolutas (ej. "definitivamente").
+    * [-10 pts] Empatía Genérica: Usar una frase de cajón sin conectar con el contexto específico.
     
     2. A - APOLOGIZE (Disculparse) - Valor: 25 puntos
-    * [-25 pts] TRAMPA DE LA DISCULPA: Disculparse cuando el error fue causado por el cliente.
-    * [-15 pts] ERROR DE CLASIFICACIÓN: Usar el tipo de disculpa equivocada (ej. de Experiencia en lugar de Operativa).
-    * [-5 pts] DISCULPA ROBÓTICA.
+    * [-25 pts] Disculpa por Error del Cliente: Disculparse cuando el error fue causado por el cliente.
+    * [-15 pts] Error de Clasificación: Usar el tipo de disculpa equivocada (ej. de Experiencia en lugar de Operativa).
+    * [-5 pts] Tono Robótico.
 
     3. R - RESOLVE (Resolver) - Valor: 25 puntos
-    * [-25 pts] PÉRDIDA DE RENTABILIDAD (Error en el Mostrador): El gerente regala productos o da descuentos por un error que se detectó ANTES de que el cliente saliera de la tienda. Si el cliente está frente al mostrador, NO se regala nada; solo se cambia el producto rápido.
-    * [-25 pts] SOBRE-COMPENSACIÓN: Regalar productos de ALTO VALOR (ej. pasteles, comidas completas, carne cara) o descuentos porcentuales por errores menores, incluso si el cliente regresó de su casa.
-    * [0 pts] CORTESÍA JUSTIFICADA (REGLA DEL TIME TAX): Es CORRECTO y NO se debe penalizar si el gerente ofrece una cortesía de BAJO COSTO (agua fresca o pan dulce de mostrador) EXCLUSIVAMENTE cuando el cliente tuvo que regresar de su casa para arreglar el error.
-    * [-15 pts] IGNORAR EL MICRO-LOOP: Si el cliente rechazó una solución y el gerente repitió mecánicamente lo mismo sin pivotar.
-    * [-10 pts] SOLUCIÓN DESCONECTADA / ENFOQUE POSITIVO: Ignorar las restricciones del cliente. Si el cliente tiene prisa, el gerente DEBE usar el Enfoque Positivo (ej. "para que pueda seguir con su día"). Penaliza si dicen "veo que tiene prisa".
-    * [-10 pts] INTERROGATORIO SECO: Faltar el 'Giro de Investigación' (alianza).
-    * [-5 pts] FALTA DE CONTROL: Faltar la 'Ilusión de Control' o 'Escudo del Sistema'.
+    * [-25 pts] Pérdida de Rentabilidad (Mostrador): Regalar productos o dar descuentos por un error detectado ANTES de que el cliente saliera de la tienda.
+    * [-25 pts] Sobre-compensación: Regalar productos de alto valor (ej. pasteles, comidas) por errores menores, incluso si el cliente regresó a la tienda.
+    * [0 pts] Cortesía Justificada (Time Tax): Es correcto y no se penaliza ofrecer una cortesía de bajo costo (agua fresca) EXCLUSIVAMENTE cuando el cliente tuvo que regresar a la tienda por un error nuestro.
+    * [-15 pts] Ignorar el Micro-Loop: Si el cliente rechazó una solución y el gerente repitió lo mismo sin pivotar.
+    * [-10 pts] Solución Desconectada / Enfoque Positivo: Ignorar las restricciones del cliente. Si el cliente tiene prisa, el gerente debe usar el Enfoque Positivo (ej. "para que pueda seguir con su día"). Penaliza si dicen "veo que tiene prisa".
+    * [-10 pts] Falta de Giro de Investigación: Faltar la frase de alianza antes de pedir información.
+    * [-5 pts] Falta de Ilusión de Control o Escudo del Sistema.
 
     4. T - THANK (Agradecer / Cierre) - Valor: 25 puntos
-    * [-100 pts / REPROBACIÓN AUTOMÁTICA]: Romper la Regla Cero ante insultos.
-    * [-10 pts] CIERRE DÉBIL: Usar "gracias" genérico en lugar del Reenfoque de Retroalimentación o Refuerzo de Paciencia.
+    * [-100 pts] Ruptura de Regla Cero: No establecer límites ante insultos graves.
+    * [-10 pts] Cierre Débil: Usar "gracias" genérico en lugar del Reenfoque de Retroalimentación o Refuerzo de Paciencia.
 
     FORMATO DE RESPUESTA REQUERIDO (Usa Markdown):
     # 📋 BOLETA DE CERTIFICACIÓN HEART
-    **Calificación Global Promedio:** [Calcula el promedio de los 3 puntajes finales] / 100
+    **Calificación Global Promedio:** [Calcula el promedio] / 100
     **Veredicto Final:** [APROBADO / REPROBADO]
 
     ### Desglose de Evaluación
@@ -282,7 +283,7 @@ with tab2:
     * *Deducciones y Análisis:* [...]
 
     REGLA DEL SISTEMA: 
-    Despídete con una frase motivadora al final. NO hagas preguntas abiertas. ESTÁ ESTRICTAMENTE PROHIBIDO "dibujar" botones con texto. La interfaz gráfica se encargará de mostrar los botones reales.
+    Despídete con una frase motivadora al final. NO hagas preguntas abiertas ni uses botones falsos.
     """
 
     if "exam_scenarios" not in st.session_state:
@@ -319,19 +320,27 @@ with tab2:
                 
                 st.session_state.exam_scenarios = scenarios_prompts
                 
-                # Lanzar el primer escenario
+                # Lanzar el primer escenario con reintentos
                 primer_prompt = st.session_state.exam_scenarios[0]
-                try:
-                    chat = client.chats.create(
-                        model="gemini-2.5-flash",
-                        config=types.GenerateContentConfig(system_instruction=actor_instrucciones, safety_settings=seguridad_baja)
-                    )
-                    resp = chat.send_message(primer_prompt)
-                    st.session_state.exam_history.append({"role": "user", "content": primer_prompt, "hidden": True})
-                    st.session_state.exam_history.append({"role": "model", "content": resp.text, "hidden": False})
+                exito = False
+                for intento in range(3):
+                    try:
+                        chat = client.chats.create(
+                            model="gemini-2.5-flash",
+                            config=types.GenerateContentConfig(system_instruction=actor_instrucciones, safety_settings=seguridad_baja)
+                        )
+                        resp = chat.send_message(primer_prompt)
+                        st.session_state.exam_history.append({"role": "user", "content": primer_prompt, "hidden": True})
+                        st.session_state.exam_history.append({"role": "model", "content": resp.text, "hidden": False})
+                        exito = True
+                        break
+                    except Exception as e:
+                        time.sleep(2)
+                
+                if exito:
                     st.rerun()
-                except Exception as e:
-                    st.error("⚠️ *Ups, el servidor está ocupado. Intenta nuevamente en unos segundos.*")
+                else:
+                    st.error("⚠️ *El servidor está inusualmente ocupado. Intenta nuevamente en unos segundos.*")
                     st.session_state.exam_scenarios = []
 
     # PASO 4: Calificación Final
@@ -347,15 +356,22 @@ with tab2:
                 
                 prompt_examiner = f"El gerente ha completado sus 3 escenarios. Aquí están las transcripciones completas:\n\n{mega_transcripcion}\n\nPor favor, entrega la Calificación Final, el Veredicto y el Desglose de Deducciones por Cliente según tu Rúbrica de 100 puntos."
                 
-                try:
-                    examiner_response = client.models.generate_content(
-                        model="gemini-2.5-pro",
-                        contents=prompt_examiner,
-                        config=types.GenerateContentConfig(system_instruction=examiner_instrucciones, safety_settings=seguridad_baja)
-                    )
-                    st.session_state.final_feedback = examiner_response.text
-                except Exception as e:
-                    st.error("⚠️ *Ups, el servidor del Evaluador está un poco saturado debido a la alta demanda. No recargues la página.*")
+                exito_eval = False
+                for intento in range(3):
+                    try:
+                        examiner_response = client.models.generate_content(
+                            model="gemini-2.5-pro",
+                            contents=prompt_examiner,
+                            config=types.GenerateContentConfig(system_instruction=examiner_instrucciones, safety_settings=seguridad_baja)
+                        )
+                        st.session_state.final_feedback = examiner_response.text
+                        exito_eval = True
+                        break
+                    except Exception as e:
+                        time.sleep(2)
+                
+                if not exito_eval:
+                    st.error("⚠️ *Ups, el servidor del Evaluador está un poco saturado debido a la alta demanda. No recargues la página, solo presiona 'Reintentar Calificación Final'.*")
 
         if st.session_state.final_feedback:
             with st.chat_message("assistant", avatar="🎓"):
@@ -412,28 +428,35 @@ with tab2:
 
                 formatted_history = [{"role": msg["role"], "parts": [{"text": msg["content"]}]} for msg in st.session_state.exam_history[:-1]]
 
-                try:
-                    chat_actor = client.chats.create(
-                        model="gemini-2.5-flash", 
-                        config=types.GenerateContentConfig(system_instruction=actor_instrucciones, safety_settings=seguridad_baja),
-                        history=formatted_history
-                    )
+                exito = False
+                for intento in range(3):
+                    try:
+                        chat_actor = client.chats.create(
+                            model="gemini-2.5-flash", 
+                            config=types.GenerateContentConfig(system_instruction=actor_instrucciones, safety_settings=seguridad_baja),
+                            history=formatted_history
+                        )
 
-                    with st.chat_message("assistant"):
-                        with st.spinner("El cliente responde..."):
-                            response_actor = chat_actor.send_message(exam_input)
-                            
-                        texto_actor = response_actor.text if response_actor.text else "⚠️ *Filtro activado.*"
-                        st.markdown(texto_actor)
-                    
+                        with st.chat_message("assistant"):
+                            with st.spinner("El cliente responde..."):
+                                response_actor = chat_actor.send_message(exam_input)
+                                
+                            texto_actor = response_actor.text if response_actor.text else "⚠️ *Filtro activado.*"
+                            st.markdown(texto_actor)
+                        
+                        exito = True
+                        break
+                    except Exception as e:
+                        time.sleep(2)
+                
+                if exito:
                     st.session_state.exam_history.append({"role": "model", "content": texto_actor, "hidden": False})
-                    
                     if "FIN DE LA SIMULACIÓN" in texto_actor.upper():
                         st.session_state.scenario_concluido = True
                         st.rerun()
-                except Exception as e:
+                else:
                     st.session_state.exam_history.pop() 
-                    st.error("⚠️ *Ups, el servidor está ocupado. Espera 10 segundos y vuelve a enviar.*")
+                    st.error("⚠️ *El servidor está inusualmente ocupado. Espera unos segundos y vuelve a enviar.*")
 
             st.divider()
             if st.button("Terminar Interacción con este Cliente"):
@@ -461,15 +484,22 @@ with tab2:
                     st.session_state.examen_total_concluido = True
                 else:
                     next_prompt = st.session_state.exam_scenarios[st.session_state.current_scenario_idx]
-                    try:
-                        chat = client.chats.create(
-                            model="gemini-2.5-flash",
-                            config=types.GenerateContentConfig(system_instruction=actor_instrucciones, safety_settings=seguridad_baja)
-                        )
-                        resp = chat.send_message(next_prompt)
-                        st.session_state.exam_history.append({"role": "user", "content": next_prompt, "hidden": True})
-                        st.session_state.exam_history.append({"role": "model", "content": resp.text, "hidden": False})
-                    except Exception as e:
+                    exito_next = False
+                    for intento in range(3):
+                        try:
+                            chat = client.chats.create(
+                                model="gemini-2.5-flash",
+                                config=types.GenerateContentConfig(system_instruction=actor_instrucciones, safety_settings=seguridad_baja)
+                            )
+                            resp = chat.send_message(next_prompt)
+                            st.session_state.exam_history.append({"role": "user", "content": next_prompt, "hidden": True})
+                            st.session_state.exam_history.append({"role": "model", "content": resp.text, "hidden": False})
+                            exito_next = True
+                            break
+                        except Exception as e:
+                            time.sleep(2)
+                            
+                    if not exito_next:
                         # FALLBACK FIX: Si hay un corte en el servidor, no dejar la pantalla en blanco
                         st.session_state.exam_history.append({"role": "user", "content": next_prompt, "hidden": True})
                         st.session_state.exam_history.append({"role": "model", "content": "⚠️ *Hubo un pequeño corte de red al cargar a este cliente. Por favor, escribe 'Hola' o '¿En qué le puedo ayudar?' en la caja de texto para que la simulación arranque.*", "hidden": False})
