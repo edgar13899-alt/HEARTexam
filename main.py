@@ -20,13 +20,15 @@ hide_menu_style = """
     """
 st.markdown(hide_menu_style, unsafe_allow_html=True)
 
-# --- CONEXIÓN IA Y SEGURIDAD ---
-api_key = os.environ.get("GEMINI_API_KEY")
-if not api_key:
-    st.error("¡Falta la clave API! Por favor, configúrala en los Secrets de Streamlit.")
-    st.stop()
+# --- CONEXIÓN VERTEX AI (ENTERPRISE) ---
+project_id = "managertrainng" 
+location = "us-central1" # Región de servidores recomendada
 
-client = genai.Client(api_key=api_key)
+try:
+    client = genai.Client(vertexai=True, project=project_id, location=location)
+except Exception as e:
+    st.error(f"Error de conexión a Vertex AI: {e}. Asegúrate de haber ejecutado 'gcloud auth application-default login'.")
+    st.stop()
 
 seguridad_baja = [
     types.SafetySetting(category="HARM_CATEGORY_HARASSMENT", threshold="BLOCK_ONLY_HIGH"),
