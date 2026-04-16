@@ -267,6 +267,8 @@ with tab2:
     * [-100 pts] Ruptura de Regla Cero: No establecer límites ante insultos graves.
     * [-10 pts] Cierre Débil: Usar "gracias" genérico en lugar del Reenfoque de Retroalimentación o Refuerzo de Paciencia.
 
+    REGLA DE DIÁLOGO NATURAL: Cuando des ejemplos exactos de guiones sobre cómo pedir perdón, ESTÁ ESTRICTAMENTE PROHIBIDO usar los nombres técnicos de la rúbrica dentro del diálogo. NUNCA sugieras decir frases robóticas como "le ofrezco una disculpa operativa" o "disculpa de experiencia". Los guiones sugeridos deben sonar como un ser humano real, cálido y profesional atendiendo un mostrador (ej. "Lamento mucho la confusión con su pedido" o "Lamento que haya tenido que esperar").
+
     FORMATO DE RESPUESTA REQUERIDO (Usa Markdown):
     # 📋 BOLETA DE CERTIFICACIÓN HEART
     **Calificación Global Promedio:** [Calcula el promedio] / 100
@@ -323,6 +325,8 @@ with tab2:
                 # Lanzar el primer escenario con reintentos
                 primer_prompt = st.session_state.exam_scenarios[0]
                 exito = False
+                error_exacto = ""
+                
                 for intento in range(3):
                     try:
                         chat = client.chats.create(
@@ -335,12 +339,13 @@ with tab2:
                         exito = True
                         break
                     except Exception as e:
+                        error_exacto = str(e)
                         time.sleep(2)
                 
                 if exito:
                     st.rerun()
                 else:
-                    st.error("⚠️ *El servidor está inusualmente ocupado. Intenta nuevamente en unos segundos.*")
+                    st.error(f"⚠️ *El servidor rechazó la conexión. Error exacto:* {error_exacto}")
                     st.session_state.exam_scenarios = []
 
     # PASO 4: Calificación Final
@@ -357,6 +362,7 @@ with tab2:
                 prompt_examiner = f"El gerente ha completado sus 3 escenarios. Aquí están las transcripciones completas:\n\n{mega_transcripcion}\n\nPor favor, entrega la Calificación Final, el Veredicto y el Desglose de Deducciones por Cliente según tu Rúbrica de 100 puntos."
                 
                 exito_eval = False
+                error_exacto = ""
                 for intento in range(3):
                     try:
                         examiner_response = client.models.generate_content(
@@ -368,10 +374,11 @@ with tab2:
                         exito_eval = True
                         break
                     except Exception as e:
+                        error_exacto = str(e)
                         time.sleep(2)
                 
                 if not exito_eval:
-                    st.error("⚠️ *Ups, el servidor del Evaluador está un poco saturado debido a la alta demanda. No recargues la página, solo presiona 'Reintentar Calificación Final'.*")
+                    st.error(f"⚠️ *Ups, el servidor del Evaluador falló. Error exacto: {error_exacto}*")
 
         if st.session_state.final_feedback:
             with st.chat_message("assistant", avatar="🎓"):
@@ -429,6 +436,7 @@ with tab2:
                 formatted_history = [{"role": msg["role"], "parts": [{"text": msg["content"]}]} for msg in st.session_state.exam_history[:-1]]
 
                 exito = False
+                error_exacto = ""
                 for intento in range(3):
                     try:
                         chat_actor = client.chats.create(
@@ -447,6 +455,7 @@ with tab2:
                         exito = True
                         break
                     except Exception as e:
+                        error_exacto = str(e)
                         time.sleep(2)
                 
                 if exito:
@@ -456,7 +465,7 @@ with tab2:
                         st.rerun()
                 else:
                     st.session_state.exam_history.pop() 
-                    st.error("⚠️ *El servidor está inusualmente ocupado. Espera unos segundos y vuelve a enviar.*")
+                    st.error(f"⚠️ *Error de conexión. Intenta de nuevo. Detalles: {error_exacto}*")
 
             st.divider()
             if st.button("Terminar Interacción con este Cliente"):
