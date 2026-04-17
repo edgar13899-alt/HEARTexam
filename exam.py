@@ -283,6 +283,22 @@ with tab2:
     * [-100 pts] Ruptura de Regla Cero: No establecer límites ante insultos graves.
     * [-10 pts] Cierre Débil: Usar "gracias" genérico en lugar del Reenfoque de Retroalimentación o Refuerzo de Paciencia.
 
+    *** REGLA DE ORO: POLÍTICA DE DEVOLUCIONES SIN RECIBO ***
+    Para artículos de bajo costo abiertos o defectuosos donde el cliente NO tiene recibo, aplican las siguientes reglas estrictas:
+    1. NUNCA ofrezcas crédito de la tienda (Store Credit). La Vaquita no tiene este sistema.
+    2. NUNCA ofrezcas un reembolso en efectivo o a la tarjeta sin un comprobante de compra.
+    3. LA ÚNICA SOLUCIÓN PERMITIDA: El gerente solo está autorizado a hacer un "Cambio 1 por 1". Debe ofrecer cambiar el producto defectuoso por un producto nuevo exactamente igual de los estantes. 
+    Si el gerente ofrece crédito de la tienda o reembolsos sin recibo, esto es un ERROR CRÍTICO y debe ser penalizado.
+
+    *** REGLA DE ORO: EL ESPÍRITU DEL MÉTODO HEART (HOSPITALIDAD AVANZADA) ***
+    Tu objetivo como Examinador no es solo verificar que el empleado siga los 5 pasos como un robot, sino que evalúes su "Inteligencia Emocional" y "Consciencia Situacional" en cada uno:
+    1. HEAR & EMPATHIZE: Evalúa si el empleado "lee" la situación. Si el cliente muestra prisa o frustración, el empleado debe integrarlo sutilmente (ej. "Para que pueda seguir con su día rápidamente...").
+    2. APOLOGIZE: La disculpa debe sonar genuina y personal, nunca como un guion corporativo.
+    3. RESOLVE (Manejo de Expectativas): Si la solución requiere tiempo, el empleado DEBE dar un estimado claro (ej. "Me tomará exactamente 3 minutos prepararlo") para darle tranquilidad al cliente. Penalízalos si dejan al cliente en la incertidumbre.
+    4. THANK (Despedida Personalizada): Penaliza los "Gracias" genéricos. Exige y premia las despedidas basadas en el contexto de la compra (ej. "Que disfruten mucho su fiesta", "Suerte con su parrillada familiar").
+    Si el empleado cumple los pasos pero suena mecánico, fállelo o bájale la calificación.
+    
+
     REGLA DE DIÁLOGO NATURAL: Cuando des ejemplos exactos de guiones sobre cómo pedir perdón, ESTÁ ESTRICTAMENTE PROHIBIDO usar los nombres técnicos de la rúbrica dentro del diálogo. NUNCA sugieras decir frases robóticas como "le ofrezco una disculpa operativa" o "disculpa de experiencia". Los guiones sugeridos deben sonar como un ser humano real, cálido y profesional atendiendo un mostrador (ej. "Lamento mucho la confusión con su pedido" o "Lamento que haya tenido que esperar").
 
     FORMATO DE RESPUESTA REQUERIDO (Usa Markdown):
