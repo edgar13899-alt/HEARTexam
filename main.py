@@ -20,16 +20,30 @@ hide_menu_style = """
     """
 st.markdown(hide_menu_style, unsafe_allow_html=True)
 
-# --- CONEXIÓN VERTEX AI (ENTERPRISE) ---
+# --- CONEXIÓN VERTEX AI (ENTERPRISE STREAMLIT WEB) ---
+import json
+
 project_id = "managertrainng" 
-location = "us-central1" # Región de servidores recomendada
+location = "us-central1"
 
 try:
+    # 1. Sacar la clave secreta de la bóveda de Streamlit
+    credenciales_json = st.secrets["gcp_service_account"]
+    
+    # 2. Guardarla temporalmente para que Google la lea
+    with open("google_key.json", "w") as f:
+        f.write(credenciales_json)
+    
+    # 3. Decirle al sistema dónde está la llave
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "google_key.json"
+    
+    # 4. Conectar
     client = genai.Client(vertexai=True, project=project_id, location=location)
-except Exception as e:
-    st.error(f"Error de conexión a Vertex AI: {e}. Asegúrate de haber ejecutado 'gcloud auth application-default login'.")
-    st.stop()
 
+except Exception as e:
+    st.error(f"Error de conexión a Vertex AI: {e}. Revisa los Secrets de Streamlit.")
+    st.stop()
+    
 seguridad_baja = [
     types.SafetySetting(category="HARM_CATEGORY_HARASSMENT", threshold="BLOCK_ONLY_HIGH"),
     types.SafetySetting(category="HARM_CATEGORY_HATE_SPEECH", threshold="BLOCK_ONLY_HIGH"),
